@@ -259,6 +259,7 @@ button { font-family: inherit; }
 .tag-snake { background: var(--red-bg); color: var(--red-dark); }
 .tag-final { background: #fff4c2; color: #9a7200; }
 .q-prompt { font-size: 20px; font-weight: 800; line-height: 1.35; margin: 0 0 14px; }
+.q-not { color: var(--red-dark); text-decoration: underline; text-decoration-thickness: 3px; text-underline-offset: 3px; }
 .q-options { display: flex; flex-direction: column; gap: 10px; }
 .option {
   text-align: left;

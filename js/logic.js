@@ -123,6 +123,7 @@
     if (['multiple_choice', 'scenario'].indexOf(q.type) === -1) errors.push(q.id + ': bad type');
     if (!Array.isArray(q.options) || q.options.length < 3 || q.options.length > 4) errors.push(q.id + ': needs 3-4 options');
     else if (!(q.correctIndex >= 0 && q.correctIndex < q.options.length)) errors.push(q.id + ': correctIndex out of range');
+    if (q.trick !== undefined && typeof q.trick !== 'boolean') errors.push(q.id + ': trick must be true/false');
     if (!/^https:\/\//.test(q.sourceUrl || '')) errors.push(q.id + ': sourceUrl must be https');
     if (!/^\d{4}-\d{2}-\d{2}$/.test(q.lastVerified || '')) errors.push(q.id + ': lastVerified must be YYYY-MM-DD');
     return errors;

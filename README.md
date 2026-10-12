@@ -23,6 +23,20 @@ Double-click **`tests.html`**. You get a green or red list of results for the bo
 ## Question format
 `id`, `level`, `difficulty` (1–5), `type` (`multiple_choice` | `scenario`), `platform`, `prompt`, `options` (3–4), `correctIndex`, `explanation`, `sourceUrl` (official docs), `lastVerified` (YYYY-MM-DD). Add `flagged: true` to take a question out of play until it's verified.
 
+## Question writing rules
+The right answer must take knowledge to find, not be readable from the shape of the options. `tests.html` checks rules 1, 4 and 6 automatically.
+1. **Similar lengths:** each option is within about ±25% of the question's average option length (the test fails beyond 0.6×–1.4×). The correct option is the longest in no more than 30% of a level's questions, and the shortest in some.
+2. **Same shape:** options use the same grammar, level of detail and tone. If one option gives a reason, they all do, or none does.
+3. **Believable wrong answers, never jokes.** Build them from:
+   - a neighbouring real feature (custom vs lookalike audience, Pixel vs Conversions API);
+   - a near-miss number or time window (50 results in 7 days vs 25 in 7 days vs 50 in 14 days);
+   - a real feature that doesn't answer the question;
+   - a common practitioner habit the official docs advise against.
+4. **No give-away words:** "always", "never" and "only" must not appear in wrong options unless the correct option has one too.
+5. **Definitely wrong:** each wrong option must be clearly wrong according to the cited source. Make questions tricky through closeness, not ambiguity.
+6. **Trick questions:** at least 4 per level, marked `trick: true`. Styles: "Which is NOT…" (NOT in capitals; the game highlights it), near-miss numbers, myth-busters, and "best first step" scenarios.
+7. **Explanations** say why the most tempting wrong answer is wrong.
+
 ## Flagged questions (need checking)
 None so far. Every question was checked against its official source on 2026-10-13.
 

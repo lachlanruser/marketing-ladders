@@ -84,7 +84,13 @@
     if (q.type === 'scenario') addTag(tags, 'Scenario');
     addTag(tags, 'Difficulty ' + '●'.repeat(q.difficulty) + '○'.repeat(5 - q.difficulty));
 
-    $('qPrompt').textContent = q.prompt;
+    // Emphasise NOT so negative questions are fair, not sneaky.
+    var prompt = $('qPrompt');
+    prompt.innerHTML = '';
+    q.prompt.split(/\b(NOT)\b/).forEach(function (part) {
+      if (part === 'NOT') { var s = document.createElement('strong'); s.className = 'q-not'; s.textContent = 'NOT'; prompt.appendChild(s); }
+      else prompt.appendChild(document.createTextNode(part));
+    });
     var opts = $('qOptions');
     opts.innerHTML = '';
     turn.shuffled.options.forEach(function (text, i) {

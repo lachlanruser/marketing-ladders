@@ -60,6 +60,7 @@ Content rules:
 - Every question in a level must relate to that level's topic.
 - Favour concepts and workflows over exact button clicks, which go out of date faster. Paid social changes especially fast.
 - No live API calls: questions are written and refreshed in Claude Code sessions using web search, then shipped as data.
+- Follow the "Question writing rules" in README.md (balanced option lengths, believable wrong answers, trick questions), and run tests.html to check them.
 - Adding a new level should only mean adding a new question file and a level config (name, theme colour, board layout).
 
 ## Progress and storage (v1, rough)
