@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Marketing Ladders</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="hud">
+    <div class="hud-level" id="hudLevel">Loading…</div>
+    <div class="progress" aria-label="Level progress">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <div class="hud-score" id="hudScore" title="Correct answers / questions answered">✔ 0/0</div>
+  </header>
+
+  <main class="scroller" id="scroller">
+    <div class="path" id="path"></div>
+  </main>
+
+  <footer class="dock">
+    <div class="dock-msg" id="dockMsg">Roll the dice to start!</div>
+    <button class="btn btn-roll" id="rollBtn" type="button" aria-label="Roll the dice">
+      <span class="die" id="die" aria-hidden="true"></span>
+      <span class="btn-roll-label">Roll</span>
+    </button>
+  </footer>
+
+  <!-- Question sheet -->
+  <div class="sheet-backdrop" id="sheet" hidden>
+    <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="qPrompt">
+      <div class="sheet-body">
+        <div class="q-tags" id="qTags"></div>
+        <h2 class="q-prompt" id="qPrompt"></h2>
+        <div class="q-options" id="qOptions" role="radiogroup"></div>
+      </div>
+      <div class="feedback" id="feedback">
+        <div class="feedback-inner">
+          <div class="feedback-text">
+            <div class="feedback-title" id="fbTitle"></div>
+            <div class="feedback-missed" id="fbMissed" hidden></div>
+            <p class="feedback-expl" id="fbExpl"></p>
+            <a class="feedback-src" id="fbSrc" target="_blank" rel="noopener">Source ↗</a>
+          </div>
+          <button class="btn btn-check" id="checkBtn" type="button" disabled>Check</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Level complete -->
+  <div class="modal-backdrop" id="complete" hidden>
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="completeTitle">
+      <div class="modal-trophy" aria-hidden="true">🏆</div>
+      <h2 id="completeTitle">Level complete!</h2>
+      <p id="completeText"></p>
+      <div class="modal-actions" id="completeActions"></div>
+    </section>
+  </div>
+
+  <div class="confetti" id="confetti" aria-hidden="true"></div>
+
+  <script src="js/ml.js"></script>
+  <script src="data/manifest.js"></script>
+  <script src="js/logic.js"></script>
+  <script src="js/fx.js"></script>
+  <script src="js/board.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

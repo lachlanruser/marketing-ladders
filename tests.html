@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Marketing Ladders tests</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 24px; background: #f7f7f7; color: #222; }
+    h1 { font-size: 22px; }
+    #summary { font-weight: 800; font-size: 18px; padding: 10px 14px; border-radius: 12px; display: inline-block; }
+    #summary.pass { background: #d7ffb8; color: #3c8a00; }
+    #summary.fail { background: #ffdfe0; color: #c62828; }
+    ul { list-style: none; padding: 0; }
+    li { padding: 6px 10px; margin: 4px 0; border-radius: 8px; background: #fff; font-size: 14px; }
+    li.pass { color: #3c8a00; }
+    li.fail { color: #c62828; background: #ffdfe0; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <h1>Marketing Ladders: board logic &amp; data tests</h1>
+  <div id="summary">Running…</div>
+  <ul id="results"></ul>
+
+  <script src="js/ml.js"></script>
+  <script src="data/manifest.js"></script>
+  <script src="js/logic.js"></script>
+  <script src="tests/runner.js"></script>
+  <script src="tests/logic.test.js"></script>
+  <script>
+    ML.loadLevels().then(function () {
+      return ML.loadScript('tests/data.test.js');
+    }).then(runTests).catch(function (err) {
+      document.getElementById('summary').textContent = err.message;
+      document.getElementById('summary').className = 'fail';
+    });
+  </script>
+</body>
+</html>
