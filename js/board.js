@@ -60,17 +60,94 @@
     return section;
   }
 
-  // Ladders and snakes, drawn in a 600x600 coordinate space over the board.
+  // ---------- Ladder and snake artwork (600x600 coordinate space over the board) ----------
+  var SIZE = 600;
+  var SNAKE_COLOURS = [
+    { body: '#ff4b4b', dark: '#c41e1e', spots: '#ffd23f' },
+    { body: '#ce82ff', dark: '#8f3fd1', spots: '#fff1a8' },
+    { body: '#ff9600', dark: '#c46a00', spots: '#fff1a8' }
+  ];
+  var paths = {}; // levelId -> { ladder: {foot: [pts]}, snake: {head: [pts]} } used by climb/slide animations
+
+  function pt(n) { var c = center(n); return { x: c.x * SIZE, y: c.y * SIZE }; }
+  function poly(points) { return points.map(function (p) { return p.x.toFixed(1) + ',' + p.y.toFixed(1); }).join(' '); }
+
+  function drawLadder(svg, a, b) {
+    var dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy);
+    var ux = dx / len, uy = dy / len;          // along the ladder
+    var px = -uy * 15, py = ux * 15;           // half-width, perpendicular
+    var g = svgEl('g', { class: 'ladder-art' });
+    var rails = [[px, py], [-px, -py]].map(function (o) {
+      return { x1: a.x + o[0] - ux * 12, y1: a.y + o[1] - uy * 12, x2: b.x + o[0] + ux * 12, y2: b.y + o[1] + uy * 12 };
+    });
+    var rungs = [];
+    for (var d = 22; d < len; d += 30) {
+      rungs.push({ x1: a.x + ux * d + px, y1: a.y + uy * d + py, x2: a.x + ux * d - px, y2: a.y + uy * d - py });
+    }
+    // Dark outline pass, then the bright wood pass on top, for a chunky cartoon look.
+    [['#8a4b12', 13, 11], ['#f0a040', 7, 6]].forEach(function (style) {
+      rungs.forEach(function (r) { g.appendChild(svgEl('line', Object.assign({ stroke: style[0], 'stroke-width': style[2], 'stroke-linecap': 'round' }, r))); });
+      rails.forEach(function (r) { g.appendChild(svgEl('line', Object.assign({ stroke: style[0], 'stroke-width': style[1], 'stroke-linecap': 'round' }, r))); });
+    });
+    svg.appendChild(g);
+  }
+
+  // A wiggly body from head (a) to tail (b), returned as points for drawing and for the slide animation.
+  function snakePoints(a, b) {
+    var dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy);
+    var nx = -dy / len, ny = dx / len;
+    var waves = Math.max(1.5, len / 110), amp = 20, pts = [];
+    for (var i = 0; i <= 48; i++) {
+      var t = i / 48;
+      var fade = Math.sin(Math.PI * Math.min(1, t * 1.15)); // straighter near head and tail
+      var off = Math.sin(t * Math.PI * 2 * waves) * amp * fade;
+      pts.push({ x: a.x + dx * t + nx * off, y: a.y + dy * t + ny * off });
+    }
+    return pts;
+  }
+
+  function drawSnake(svg, pts, colours) {
+    var g = svgEl('g', { class: 'snake-art' });
+    function width(i) { return 8 + 14 * (1 - i / (pts.length - 1)); } // tapers towards the tail
+    [[colours.dark, 6], [colours.body, 0]].forEach(function (style) {
+      for (var i = 0; i < pts.length - 1; i++) {
+        g.appendChild(svgEl('line', {
+          x1: pts[i].x, y1: pts[i].y, x2: pts[i + 1].x, y2: pts[i + 1].y,
+          stroke: style[0], 'stroke-width': width(i) + style[1], 'stroke-linecap': 'round'
+        }));
+      }
+    });
+    g.appendChild(svgEl('polyline', {
+      points: poly(pts.slice(3, -4)), fill: 'none', stroke: colours.spots,
+      'stroke-width': 5, 'stroke-linecap': 'round', 'stroke-dasharray': '1 16'
+    }));
+
+    // Head: facing away from the body, with eyes and a forked tongue.
+    var h = pts[0], n = pts[3];
+    var angle = Math.atan2(h.y - n.y, h.x - n.x) * 180 / Math.PI;
+    var head = svgEl('g', { transform: 'translate(' + h.x.toFixed(1) + ' ' + h.y.toFixed(1) + ') rotate(' + angle.toFixed(1) + ')' });
+    head.appendChild(svgEl('path', { d: 'M20 0 L32 0 M32 0 L39 -6 M32 0 L39 6', stroke: '#ff5a8a', 'stroke-width': 3.5, 'stroke-linecap': 'round', fill: 'none' }));
+    head.appendChild(svgEl('ellipse', { cx: 2, cy: 0, rx: 23, ry: 18, fill: colours.body, stroke: colours.dark, 'stroke-width': 3.5 }));
+    [-8, 8].forEach(function (y) {
+      head.appendChild(svgEl('circle', { cx: 7, cy: y, r: 6, fill: '#fff' }));
+      head.appendChild(svgEl('circle', { cx: 9, cy: y, r: 3, fill: '#222' }));
+    });
+    g.appendChild(head);
+    svg.appendChild(g);
+  }
+
   function buildOverlay(level) {
-    var svg = svgEl('svg', { class: 'overlay', viewBox: '0 0 600 600', preserveAspectRatio: 'none' });
-    function pt(n) { var c = center(n); return { x: c.x * 600, y: c.y * 600 }; }
+    var svg = svgEl('svg', { class: 'overlay', viewBox: '0 0 ' + SIZE + ' ' + SIZE, preserveAspectRatio: 'none' });
+    var store = paths[level.id] = { ladder: {}, snake: {} };
     level.ladders.forEach(function (l) {
       var a = pt(l[0]), b = pt(l[1]);
-      svg.appendChild(svgEl('line', { x1: a.x, y1: a.y, x2: b.x, y2: b.y, stroke: '#58cc02', 'stroke-width': 10, 'stroke-linecap': 'round', opacity: 0.8 }));
+      drawLadder(svg, a, b);
+      store.ladder[l[0]] = [a, b];
     });
-    level.snakes.forEach(function (s) {
-      var a = pt(s[0]), b = pt(s[1]);
-      svg.appendChild(svgEl('line', { x1: a.x, y1: a.y, x2: b.x, y2: b.y, stroke: '#ff4b4b', 'stroke-width': 10, 'stroke-linecap': 'round', 'stroke-dasharray': '4 18', opacity: 0.8 }));
+    level.snakes.forEach(function (s, i) {
+      var pts = snakePoints(pt(s[0]), pt(s[1]));
+      drawSnake(svg, pts, SNAKE_COLOURS[i % SNAKE_COLOURS.length]);
+      store.snake[s[0]] = pts;
     });
     return svg;
   }
@@ -103,6 +180,39 @@
     },
 
     token: function () { return token; },
+
+    // Points (600x600 space) for a ladder climb or snake slide starting at `from`.
+    featurePath: function (levelId, type, from) {
+      return paths[levelId] && paths[levelId][type][from];
+    },
+
+    // Animate the token along a list of points, then leave it at the last one.
+    travelPath: function (levelId, points, duration, easing) {
+      var t = token; // already on this level's board, sitting at points[0]
+      var lengths = [0];
+      for (var i = 1; i < points.length; i++) {
+        lengths.push(lengths[i - 1] + Math.hypot(points[i].x - points[i - 1].x, points[i].y - points[i - 1].y));
+      }
+      var total = lengths[lengths.length - 1];
+      t.classList.add('no-trans');
+      return new Promise(function (resolve) {
+        var start = null;
+        function frame(now) {
+          if (start === null) start = now;
+          var k = Math.min(1, (now - start) / duration);
+          var d = easing(k) * total, j = 1;
+          while (j < lengths.length - 1 && lengths[j] < d) j++;
+          var seg = (d - lengths[j - 1]) / ((lengths[j] - lengths[j - 1]) || 1);
+          var x = points[j - 1].x + (points[j].x - points[j - 1].x) * seg;
+          var y = points[j - 1].y + (points[j].y - points[j - 1].y) * seg;
+          t.style.left = (x / SIZE) * 100 + '%';
+          t.style.top = (y / SIZE) * 100 + '%';
+          if (k < 1) requestAnimationFrame(frame);
+          else { t.classList.remove('no-trans'); resolve(); }
+        }
+        requestAnimationFrame(frame);
+      });
+    },
 
     // Scroll so the given square is comfortably in view.
     scrollTo: function (levelId, square, smooth) {

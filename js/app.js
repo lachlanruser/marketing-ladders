@@ -49,11 +49,27 @@
     await ML.fx.wait(450);
   }
 
+  // Climb a ladder or slide down a snake's body.
+  async function followFeature(type, from, to) {
+    var points = ML.board.featurePath(state.levelId, type, from);
+    if (!points || ML.fx.reducedMotion()) { await travel(to); return; }
+    ML.board.scrollTo(state.levelId, to, true);
+    if (type === 'ladder') {
+      await ML.board.travelPath(state.levelId, points, 800, function (k) { return k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2; });
+    } else {
+      await ML.board.travelPath(state.levelId, points, 1100, function (k) { return k * k * (3 - 2 * k) * 0.3 + k * k * 0.7; });
+    }
+    ML.board.placeToken(state.levelId, to);
+    await ML.fx.wait(150);
+  }
+
   // ---------- Roll ----------
   async function roll() {
     if (state.busy) return;
     setRollEnabled(false);
     var value = L.rollDie();
+    say('Rolling…');
+    await ML.fx.rollDice(value);
     ML.fx.drawDie($('die'), value);
     var start = state.square;
     var landed = L.move(start, value, level().size);
@@ -181,7 +197,8 @@
     turn = null;
     $('sheet').hidden = true;
 
-    if (r.final !== landed) await travel(r.final);
+    if (r.event === 'ladder' || r.event === 'snake') await followFeature(r.event, landed, r.final);
+    else if (r.final !== landed) await travel(r.final);
     state.square = r.final;
     updateHud();
 
