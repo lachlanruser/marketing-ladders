@@ -321,12 +321,12 @@ button { font-family: inherit; }
   position: fixed;
   inset: 0;
   z-index: 25;
-  background: rgba(20, 30, 50, 0.25);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 .dice-stage[hidden] { display: none; }
+.dice-backdrop { position: absolute; inset: 0; background: rgba(20, 30, 50, 0.25); }
 .dice-spot {
   --size: 110px;
   --half: 55px;
@@ -335,20 +335,26 @@ button { font-family: inherit; }
   height: var(--size);
   perspective: 700px;
 }
-.dice-throw { width: 100%; height: 100%; }
+/* preserve-3d all the way down so perspective reaches the cube and faces sort correctly */
+.dice-throw { width: 100%; height: 100%; transform-style: preserve-3d; }
 .cube {
   position: relative;
   width: 100%;
   height: 100%;
   transform-style: preserve-3d;
 }
+.cube-core {
+  position: absolute;
+  inset: 0;
+  background: #dcdcdc;
+}
 .cube-face {
   position: absolute;
   inset: 0;
   background: #fff;
-  border-radius: 22px;
-  border: 4px solid #e6e6e6;
-  box-shadow: inset 0 -8px 0 rgba(0,0,0,0.08);
+  border-radius: 18px;
+  border: 4px solid #dcdcdc;
+  box-shadow: inset 0 -8px 0 #ededed;
   display: grid;
   grid-template: repeat(3, 1fr) / repeat(3, 1fr);
   padding: 14px;

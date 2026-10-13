@@ -19,6 +19,14 @@
 
   function buildCube(cube) {
     if (cube.childElementCount) return;
+    // Solid inner core: fills the gaps at the rounded edges and corners, so the
+    // board never shows through the dice while it tumbles.
+    for (var c = 1; c <= 6; c++) {
+      var core = document.createElement('div');
+      core.className = 'cube-core';
+      core.style.transform = FACE_POS[c] + ' translateZ(calc(var(--half) - 4px))';
+      cube.appendChild(core);
+    }
     for (var v = 1; v <= 6; v++) {
       var face = document.createElement('div');
       face.className = 'cube-face';
@@ -61,6 +69,7 @@
       var cube = document.getElementById('cube');
       var shadow = document.getElementById('diceShadow');
       var label = document.getElementById('diceLabel');
+      var backdrop = document.getElementById('diceBackdrop');
       buildCube(cube);
       var rot = FACE_ROT[value];
       var end = 'rotateX(' + rot[0] + 'deg) rotateY(' + rot[1] + 'deg)';
@@ -97,8 +106,8 @@
         { transform: 'translateY(-18px) scale(1)', offset: 0.88, easing: 'ease-in' },
         { transform: 'translateY(0) scale(1)', offset: 1 }
       ];
-      thrower.animate(bounce, { duration: duration, fill: 'forwards' });
-      shadow.animate([
+      var throwAnim = thrower.animate(bounce, { duration: duration, fill: 'forwards' });
+      var shadowAnim = shadow.animate([
         { transform: 'scale(0.2)', opacity: 0 },
         { transform: 'scale(1)', opacity: 1, offset: 0.45 },
         { transform: 'scale(0.6)', opacity: 0.6, offset: 0.62 },
@@ -109,14 +118,27 @@
       await finished(spin, duration);
       cube.style.transform = end;
       spin.cancel();
+      throwAnim.cancel();
       // Little "ta-da" pop and the number.
       thrower.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.15)' }, { transform: 'scale(1)' }],
         { duration: 260, easing: 'ease-out' });
       label.textContent = value;
       label.classList.add('show');
       await this.wait(550);
-      await finished(stage.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 220 }), 220);
+
+      // Exit: shrink the dice away and fade only the flat backdrop. Fading the whole stage
+      // would flatten the 3D cube and make it look see-through for a moment.
+      var exitMs = 220;
+      thrower.animate([{ transform: 'scale(1)' }, { transform: 'scale(0)' }], { duration: exitMs, easing: 'ease-in', fill: 'forwards' });
+      shadowAnim.cancel();
+      shadow.animate([{ transform: 'scale(1)' }, { transform: 'scale(0)' }], { duration: exitMs, easing: 'ease-in', fill: 'forwards' });
+      label.classList.remove('show');
+      await finished(backdrop.animate([{ opacity: 1 }, { opacity: 0 }], { duration: exitMs, fill: 'forwards' }), exitMs);
       stage.hidden = true;
+      // Clear finished animations so they don't pile up between rolls.
+      [thrower, shadow, backdrop].forEach(function (el) {
+        el.getAnimations().forEach(function (a) { a.cancel(); });
+      });
     },
 
     drawDie: function (dieEl, value) {
