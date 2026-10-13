@@ -5,7 +5,7 @@
 
   var PRAISE = ['Nice!', 'Great job!', 'Spot on!', 'You got it!', 'Correct!'];
 
-  var state = { levelId: null, square: 0, used: {}, answered: 0, correct: 0, busy: false };
+  var state = { levelId: null, square: 0, used: [], answered: 0, correct: 0, busy: false };
   var turn = null; // { start, landed, question, shuffled, selected, checked, result }
 
   function level() { return ML.levels[state.levelId]; }
@@ -33,6 +33,7 @@
   function startLevel(id) {
     state.levelId = id;
     state.square = 0;
+    state.used = []; // fresh random draw each game: no repeats within a game
     state.answered = 0;
     state.correct = 0;
     updateHud();
@@ -81,9 +82,9 @@
   // ---------- Question ----------
   function askQuestion(start, landed) {
     var lv = level();
-    var picked = L.pickQuestion(ML.questions[lv.id] || [], state.used[lv.id] || [], L.difficultyFor(landed, lv.size));
+    var picked = L.pickQuestion(ML.questions[lv.id] || [], state.used);
     if (!picked.question) { say('No questions found for this level.'); return; }
-    state.used[lv.id] = picked.used;
+    state.used = picked.used;
 
     var q = picked.question;
     turn = { start: start, landed: landed, question: q, shuffled: L.shuffleOptions(q), selected: null, checked: false };
@@ -98,7 +99,6 @@
     addTag(tags, 'Square ' + landed);
     if (q.platform) addTag(tags, q.platform);
     if (q.type === 'scenario') addTag(tags, 'Scenario');
-    addTag(tags, 'Difficulty ' + '●'.repeat(q.difficulty) + '○'.repeat(5 - q.difficulty));
 
     // Emphasise NOT so negative questions are fair, not sneaky.
     var prompt = $('qPrompt');

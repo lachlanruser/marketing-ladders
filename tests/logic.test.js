@@ -93,43 +93,36 @@
     eq([r.final, r.event, r.complete], [30, 'ladder', true]);
   });
 
-  // ---- Difficulty bands ----
-  test('difficulty rises in bands of 6 squares', function () {
-    eq([1, 6, 7, 12, 13, 24, 25, 30].map(function (s) { return L.difficultyFor(s, 30); }), [1, 1, 2, 2, 3, 4, 5, 5]);
-  });
-
-  // ---- Question picking ----
+  // ---- Question picking (fully random, no repeats within a game) ----
   var pool = [
     { id: 'a', difficulty: 1 }, { id: 'b', difficulty: 1 }, { id: 'c', difficulty: 3 },
     { id: 'd', difficulty: 5 }, { id: 'x', difficulty: 1, flagged: true }
   ];
 
-  test('pickQuestion prefers the target difficulty', function () {
-    var r = L.pickQuestion(pool, [], 3, L.seededRng(2));
-    eq(r.question.id, 'c');
-  });
-
-  test('pickQuestion falls back to the nearest difficulty', function () {
-    var r = L.pickQuestion(pool, ['c'], 4, L.seededRng(2));
-    eq(r.question.id, 'd');
+  test('pickQuestion draws from every difficulty with equal chance', function () {
+    var counts = { a: 0, b: 0, c: 0, d: 0 }, rng = L.seededRng(3);
+    for (var i = 0; i < 4000; i++) counts[L.pickQuestion(pool, [], rng).question.id]++;
+    Object.keys(counts).forEach(function (id) {
+      assert(counts[id] > 850 && counts[id] < 1150, id + ' picked ' + counts[id] + ' times of 4000');
+    });
   });
 
   test('pickQuestion never repeats until the pool is used up, then resets', function () {
     var used = [], seen = [];
     for (var i = 0; i < 4; i++) {
-      var r = L.pickQuestion(pool, used, 1, L.seededRng(i));
+      var r = L.pickQuestion(pool, used, L.seededRng(i));
       assert(seen.indexOf(r.question.id) === -1, 'repeat of ' + r.question.id);
       seen.push(r.question.id);
       used = r.used;
     }
     eq(seen.slice().sort(), ['a', 'b', 'c', 'd']);
-    var again = L.pickQuestion(pool, used, 1, L.seededRng(9));
+    var again = L.pickQuestion(pool, used, L.seededRng(9));
     eq(again.used.length, 1, 'pool reset after all used');
   });
 
   test('pickQuestion skips flagged questions', function () {
     for (var i = 0; i < 50; i++) {
-      assert(L.pickQuestion(pool, [], 1, L.seededRng(i)).question.id !== 'x');
+      assert(L.pickQuestion(pool, [], L.seededRng(i)).question.id !== 'x');
     }
   });
 

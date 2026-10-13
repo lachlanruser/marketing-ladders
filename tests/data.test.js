@@ -25,12 +25,9 @@
       eq(ids.length, new Set(ids).size);
     });
 
-    test(id + ': about 20 questions, every difficulty band covered', function () {
+    test(id + ': about 40 playable questions', function () {
       var playable = questions.filter(function (q) { return !q.flagged; });
-      assert(playable.length >= 18, 'only ' + playable.length + ' playable questions');
-      for (var d = 1; d <= 5; d++) {
-        assert(playable.some(function (q) { return q.difficulty === d; }), 'no difficulty ' + d);
-      }
+      assert(playable.length >= 36, 'only ' + playable.length + ' playable questions');
     });
 
     // ---- Answer quality: the right answer shouldn't be guessable from its shape ----
@@ -56,9 +53,9 @@
       assert(shortest >= 1, 'correct is never the shortest');
     });
 
-    test(id + ': at least 4 trick questions', function () {
+    test(id + ': at least 1 in 5 questions is a trick question', function () {
       var n = questions.filter(function (q) { return q.trick; }).length;
-      assert(n >= 4, 'only ' + n + ' marked trick: true');
+      assert(n >= Math.ceil(questions.length / 5), 'only ' + n + ' marked trick: true');
     });
 
     test(id + ': "always", "never" and "only" don\'t appear only in wrong answers', function () {

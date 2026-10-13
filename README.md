@@ -10,7 +10,7 @@ Double-click **`tests.html`**. You get a green or red list of results for the bo
 
 ## How a turn works
 1. Roll the dice and move (overshooting the last square lands you on it).
-2. Answer a question. Difficulty rises with your square, in bands of 6.
+2. Answer a question, drawn at random from the whole level pool (any difficulty on any square, no repeats within a game).
 3. **Correct:** keep the square, and climb if it's a ladder foot. **Wrong:** go back to where the turn started, or slide down if it's a snake head.
 4. Answer the question on the final square correctly to finish the level.
 

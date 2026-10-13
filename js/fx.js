@@ -34,8 +34,15 @@
     }
   }
 
-  function finished(anim) {
-    return new Promise(function (r) { anim.onfinish = r; });
+  // Resolves when the animation ends, with a timer fallback in case the browser pauses
+  // animations (e.g. the tab is in the background).
+  function finished(anim, ms) {
+    return new Promise(function (r) {
+      var done = false;
+      function finish() { if (!done) { done = true; r(); } }
+      anim.onfinish = finish;
+      setTimeout(finish, (ms || 0) + 150);
+    });
   }
 
   ML.fx = {
@@ -99,7 +106,7 @@
         { transform: 'scale(1)', opacity: 1 }
       ], { duration: duration, fill: 'forwards' });
 
-      await finished(spin);
+      await finished(spin, duration);
       cube.style.transform = end;
       spin.cancel();
       // Little "ta-da" pop and the number.
@@ -108,7 +115,7 @@
       label.textContent = value;
       label.classList.add('show');
       await this.wait(550);
-      await finished(stage.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 220 }));
+      await finished(stage.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 220 }), 220);
       stage.hidden = true;
     },
 

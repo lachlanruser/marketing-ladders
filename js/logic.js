@@ -1,7 +1,6 @@
 // Pure game rules. No DOM access, so everything here is unit-tested in tests.html.
 // Squares are numbered 0 (start pad) to level.size (final square).
 (function (ML) {
-  var DIFFICULTY_BANDS = 5;
 
   function rollDie(rng) {
     rng = rng || Math.random;
@@ -39,16 +38,10 @@
     return { final: final, event: event, feature: feature, complete: final === level.size };
   }
 
-  // Bands of squares map to difficulty 1-5 (30 squares: 1-6 -> 1, ..., 25-30 -> 5).
-  function difficultyFor(square, size) {
-    var band = Math.ceil(square / (size / DIFFICULTY_BANDS));
-    return Math.max(1, Math.min(DIFFICULTY_BANDS, band));
-  }
-
-  // Pick a random unused question, closest to the target difficulty.
-  // When every question has been used, the pool resets.
+  // Pick a random question from the whole pool (any difficulty, any square) that hasn't been
+  // used yet this game. If a game ever uses up the pool, it starts over.
   // Returns { question, used } where used is the new list of used ids.
-  function pickQuestion(pool, usedIds, targetDifficulty, rng) {
+  function pickQuestion(pool, usedIds, rng) {
     rng = rng || Math.random;
     var playable = pool.filter(function (q) { return !q.flagged; });
     if (!playable.length) return { question: null, used: usedIds || [] };
@@ -58,10 +51,7 @@
     var available = playable.filter(function (q) { return used.indexOf(q.id) === -1; });
     if (!available.length) { used = []; available = playable; }
 
-    var best = Infinity;
-    available.forEach(function (q) { best = Math.min(best, Math.abs(q.difficulty - targetDifficulty)); });
-    var closest = available.filter(function (q) { return Math.abs(q.difficulty - targetDifficulty) === best; });
-    var question = closest[Math.floor(rng() * closest.length)];
+    var question = available[Math.floor(rng() * available.length)];
     return { question: question, used: used.concat(question.id) };
   }
 
@@ -160,7 +150,6 @@
     move: move,
     featureAt: featureAt,
     resolveTurn: resolveTurn,
-    difficultyFor: difficultyFor,
     pickQuestion: pickQuestion,
     shuffleOptions: shuffleOptions,
     isUnlocked: isUnlocked,

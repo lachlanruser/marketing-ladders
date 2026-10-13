@@ -96,3 +96,14 @@ Content rules:
 - Whether questions repeat within a level, and how I avoid seeing the same one too soon.
 - Whether missed questions resurface later (built-in spaced repetition) in v1 or later.
 - Who writes the first question bank: drafted by Claude Code from official documentation, then spot-checked by me.
+
+## Decisions made (these override the brief above where they differ)
+- Layout: one continuous scrolling path. Each level is a self-contained section, because level order may be shuffled in future versions.
+- Board: 30 squares (6×5) per level, with 3 ladders and 3 snakes laid out so they don't cross. Aim for 5–10 dice rolls (about 15 minutes) per level.
+- Finish: overshooting lands on the final square, and you must answer that question correctly to finish.
+- Snakes: a correct answer on a snake head keeps you safe; a wrong answer slides you to the tail.
+- Questions: drawn completely at random from the level's pool on every roll, ignoring difficulty and board position, with no repeats within a game. Each new game draws afresh. The difficulty label isn't shown to the player, and the `difficulty` field is kept for reference only.
+- Question pool: about 40 per level (changed from 20).
+- Missed-question resurfacing: not in v1.
+- Replay: completed sections can be replayed.
+- Runtime: zero install. Plain HTML, CSS and JS; double-click index.html to play and tests.html to run the tests.
