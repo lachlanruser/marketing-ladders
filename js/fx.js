@@ -141,6 +141,39 @@
       });
     },
 
+    // One hop of the playing piece between two positions ({left, top} CSS percentages).
+    // opts: { duration, last (bigger squash on the final landing) }
+    hop: async function (token, from, to, opts) {
+      opts = opts || {};
+      var duration = opts.duration || 200;
+      var body = token.querySelector('.token-body');
+      var move = token.animate(
+        [{ left: from.left, top: from.top }, { left: to.left, top: to.top }],
+        { duration: duration, easing: 'linear', fill: 'forwards' }
+      );
+      if (!this.reducedMotion()) {
+        var lift = token.offsetWidth * 0.85;  // arc height scales with the piece
+        var squash = opts.last ? 'scale(1.3, 0.72)' : 'scale(1.14, 0.86)';
+        body.animate([
+          { transform: 'translateY(0) scale(1, 1)' },
+          { transform: 'translateY(' + -lift + 'px) scale(0.94, 1.08)', offset: 0.45, easing: 'ease-in' },
+          { transform: 'translateY(0) scale(1, 1)', offset: 0.78 },
+          { transform: 'translateY(0) ' + squash, offset: 0.88 },
+          { transform: 'translateY(0) scale(1, 1)' }
+        ], { duration: duration, easing: 'ease-out' });
+      }
+      await finished(move, duration);
+      token.style.left = to.left;
+      token.style.top = to.top;
+      move.cancel();
+      if (opts.last && !this.reducedMotion()) {
+        // A little settle wobble after the final, bigger squash.
+        await finished(body.animate([
+          { transform: 'scale(1.3, 0.72)' }, { transform: 'scale(0.92, 1.1)' }, { transform: 'scale(1, 1)' }
+        ], { duration: 220, easing: 'ease-out' }), 220);
+      }
+    },
+
     drawDie: function (dieEl, value) {
       dieEl.innerHTML = '';
       PIPS[value].forEach(function (p) {

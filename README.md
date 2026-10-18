@@ -15,7 +15,7 @@ Double-click **`tests.html`**. You get a green or red list of results for the bo
 4. Answer the question on the final square correctly to finish the level.
 
 ## Add a level
-1. Copy `data/levels/paid-social.js` to `data/levels/<new-id>.js` and change the id, name, theme colour, ladders and snakes.
+1. Copy `data/levels/paid-social.js` to `data/levels/<new-id>.js` and change the id, name and theme colour (one distinct colour per level). Pick a `path.seed` for the path shape, then choose ladders and snakes that `tests.html` confirms don't cross each other or pass over a stone.
 2. Create `data/questions/<new-id>.js` with `ML.registerQuestions('<new-id>', [...])`.
 3. Add `'<new-id>'` to `ML.LEVEL_ORDER` in `data/manifest.js`.
 4. Open `tests.html` to check that the new level and questions are valid.

@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Marketing Ladders tests</title>
+  <link rel="icon" href="data:,">
   <style>
     body { font-family: system-ui, sans-serif; margin: 24px; background: #f7f7f7; color: #222; }
     h1 { font-size: 22px; }
@@ -24,11 +25,14 @@
   <script src="js/ml.js"></script>
   <script src="data/manifest.js"></script>
   <script src="js/logic.js"></script>
+  <script src="js/path.js"></script>
   <script src="tests/runner.js"></script>
   <script src="tests/logic.test.js"></script>
   <script>
     ML.loadLevels().then(function () {
       return ML.loadScript('tests/data.test.js');
+    }).then(function () {
+      return ML.loadScript('tests/path.test.js');
     }).then(runTests).catch(function (err) {
       document.getElementById('summary').textContent = err.message;
       document.getElementById('summary').className = 'fail';

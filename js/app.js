@@ -20,6 +20,7 @@
     document.documentElement.style.setProperty('--theme-dark', lv.themeDark || lv.theme);
     $('progressFill').style.width = (state.square / lv.size) * 100 + '%';
     $('hudScore').textContent = '✔ ' + state.correct + '/' + state.answered;
+    ML.board.setProgress(lv.id, state.square);
   }
 
   function say(msg) { $('dockMsg').textContent = msg; }
@@ -44,10 +45,22 @@
   }
 
   // ---------- Movement ----------
+  // Jump straight to a square (used for reduced motion and after ladders/snakes).
   async function travel(to) {
     ML.board.placeToken(state.levelId, to);
     ML.board.scrollTo(state.levelId, to, true);
-    await ML.fx.wait(450);
+    await ML.fx.wait(300);
+  }
+
+  // Hop circle by circle from one square to another (forwards or backwards).
+  async function hops(from, to, duration) {
+    var token = ML.board.placeToken(state.levelId, from);
+    var step = to > from ? 1 : -1;
+    ML.board.scrollTo(state.levelId, to, true);
+    for (var sq = from; sq !== to; sq += step) {
+      await ML.fx.hop(token, ML.board.tokenPos(state.levelId, sq), ML.board.tokenPos(state.levelId, sq + step),
+        { duration: duration, last: sq + step === to });
+    }
   }
 
   // Climb a ladder or slide down a snake's body.
@@ -75,7 +88,7 @@
     var start = state.square;
     var landed = L.move(start, value, level().size);
     say('You rolled a ' + value + '!');
-    await travel(landed);
+    await hops(start, landed, 200);
     askQuestion(start, landed);
   }
 
@@ -198,7 +211,7 @@
     $('sheet').hidden = true;
 
     if (r.event === 'ladder' || r.event === 'snake') await followFeature(r.event, landed, r.final);
-    else if (r.final !== landed) await travel(r.final);
+    else if (r.final !== landed) await hops(landed, r.final, 130); // wrong answer: hop back
     state.square = r.final;
     updateHud();
 

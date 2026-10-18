@@ -99,7 +99,8 @@ Content rules:
 
 ## Decisions made (these override the brief above where they differ)
 - Layout: one continuous scrolling path. Each level is a self-contained section, because level order may be shuffled in future versions.
-- Board: 30 squares (6×5) per level, with 3 ladders and 3 snakes laid out so they don't cross. Aim for 5–10 dice rolls (about 15 minutes) per level.
+- Board: a flat, Duolingo-style winding path of 30 round "stones" per level (plus a GO start), about 2–3 phone screens tall, scrolling upward. Each level uses one theme colour: stones ahead are a light tint and passed stones are full colour. There are 3 ladders and 3 snakes per level, placed so none crosses another or passes over a stone (tests/path.test.js checks this). Aim for 5–10 dice rolls (about 15 minutes) per level.
+- Movement: the piece hops stone by stone with a bouncy arc and a squash on each landing (a bigger squash on the last), and hops back after a wrong answer.
 - Finish: overshooting lands on the final square, and you must answer that question correctly to finish.
 - Snakes: a correct answer on a snake head keeps you safe; a wrong answer slides you to the tail.
 - Questions: drawn completely at random from the level's pool on every roll, ignoring difficulty and board position, with no repeats within a game. Each new game draws afresh. The difficulty label isn't shown to the player, and the `difficulty` field is kept for reference only.

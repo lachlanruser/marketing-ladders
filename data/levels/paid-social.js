@@ -6,8 +6,11 @@ ML.registerLevel({
   themeDark: '#1899d6',
   size: 30,
   // [foot, top]: a correct answer on the foot climbs to the top.
-  // Laid out in separate columns so ladders and snakes never cross.
-  ladders: [[5, 17], [12, 24], [16, 28]],
+  // Positions are chosen for this level's winding path (js/path.js) so that no ladder or
+  // snake crosses another or passes over a circle; tests/path.test.js checks this.
+  ladders: [[2, 10], [6, 14], [19, 27]],
   // [head, tail]: a wrong answer on the head slides to the tail.
-  snakes: [[14, 2], [19, 7], [27, 15]]
+  snakes: [[9, 3], [18, 11], [22, 16]],
+  // Path shape: seed picks the quirky bend pattern. Optional: amplitude: [min, max], bendHeight: [min, max].
+  path: { seed: 4 }
 });

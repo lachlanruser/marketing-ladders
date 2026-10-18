@@ -1,17 +1,11 @@
 // Renders the continuous path: one section per level, stacked bottom-up.
-// Each section is self-contained (its own 6x5 grid + start banner), so sections can be reordered.
+// Each section is self-contained (its own winding path of circles + level banner),
+// so sections can be reordered or shuffled later.
 (function (ML) {
-  var COLS = 6, ROWS = 5;            // square rows; plus one start/banner row underneath
   var SVG_NS = 'http://www.w3.org/2000/svg';
-
-  // Centre of square n as fractions (0..1) of the board's width/height.
-  function center(n) {
-    if (n === 0) return { x: 0.5 / COLS, y: (ROWS + 0.5) / (ROWS + 1) };
-    var row = Math.floor((n - 1) / COLS);
-    var idx = (n - 1) % COLS;
-    var col = row % 2 === 0 ? idx : COLS - 1 - idx;   // boustrophedon: rows wind back and forth
-    return { x: (col + 0.5) / COLS, y: (ROWS - 1 - row + 0.5) / (ROWS + 1) };
-  }
+  var geos = {};   // levelId -> geometry from ML.path.layout
+  var paths = {};  // levelId -> { ladder: {foot: [pts]}, snake: {head: [pts]} } for climb/slide animations
+  var token = null;
 
   function el(tag, cls, text) {
     var e = document.createElement(tag);
@@ -26,51 +20,88 @@
     return e;
   }
 
+  function geo(levelId) {
+    if (!geos[levelId]) geos[levelId] = ML.path.layout(ML.levels[levelId]);
+    return geos[levelId];
+  }
+
+  // Centre of square n as fractions (0..1) of the board's width/height.
+  function center(levelId, n) {
+    var g = geo(levelId), p = g.points[n];
+    return { x: p.x / g.width, y: p.y / g.height };
+  }
+
+  function poly(points) { return points.map(function (p) { return p.x.toFixed(1) + ',' + p.y.toFixed(1); }).join(' '); }
+
+  // Tiny badge icons for ladder-foot and snake-head circles.
+  function badge(type) {
+    var b = el('span', 'stone-badge stone-badge-' + type);
+    var svg = svgEl('svg', { viewBox: '0 0 20 20', 'aria-hidden': 'true' });
+    if (type === 'ladder') {
+      svg.appendChild(svgEl('path', { d: 'M6 3v14M14 3v14M6 6h8M6 10h8M6 14h8', stroke: '#fff', 'stroke-width': 2.4, 'stroke-linecap': 'round', fill: 'none' }));
+    } else {
+      svg.appendChild(svgEl('path', { d: 'M4 15c3 0 3-5 6-5s3 5 6 5M14 5a2 2 0 1 0 0.1 0', stroke: '#fff', 'stroke-width': 2.4, 'stroke-linecap': 'round', fill: 'none' }));
+    }
+    b.appendChild(svg);
+    return b;
+  }
+
   function buildSection(level, index) {
+    var g = geo(level.id);
     var section = el('section', 'section');
     section.dataset.level = level.id;
     section.style.setProperty('--theme', level.theme);
     section.style.setProperty('--theme-dark', level.themeDark || level.theme);
 
     var board = el('div', 'board');
-    for (var n = 1; n <= level.size; n++) {
-      var c = center(n);
-      var cell = el('div', 'cell');
-      cell.dataset.square = n;
-      cell.style.left = (c.x - 0.5 / COLS) * 100 + '%';
-      cell.style.top = (c.y - 0.5 / (ROWS + 1)) * 100 + '%';
-      if (n % 2 === 0) cell.classList.add('alt');
-      var f = ML.logic.featureAt(level, n);
-      if (f) cell.classList.add(f.type);
-      if (n === level.size) cell.classList.add('final');
-      cell.appendChild(el('div', 'cell-inner', n === level.size ? '★' : String(n)));
-      board.appendChild(cell);
-    }
+    board.style.aspectRatio = g.width + ' / ' + g.height.toFixed(1);
 
-    var banner = el('div', 'banner');
-    banner.appendChild(el('span', 'banner-start', 'GO'));
-    var text = el('div', 'banner-text');
-    text.appendChild(el('div', 'banner-title', 'Level ' + (index + 1) + ': ' + level.name));
-    if (level.subtitle) text.appendChild(el('div', 'banner-sub', level.subtitle));
-    banner.appendChild(text);
-    board.appendChild(banner);
+    // Dotted trail linking the circles, so the order is obvious round the bends.
+    var trail = svgEl('svg', { class: 'trail', viewBox: '0 0 ' + g.width + ' ' + g.height.toFixed(1), preserveAspectRatio: 'none' });
+    trail.appendChild(svgEl('polyline', { points: poly(g.trail), class: 'trail-line' }));
+    board.appendChild(trail);
 
-    board.appendChild(buildOverlay(level));
+    var stones = el('div', 'stones');
+    g.points.forEach(function (p, n) {
+      var stone = el('div', 'stone');
+      stone.dataset.square = n;
+      stone.style.left = ((p.x - g.radius) / g.width) * 100 + '%';
+      stone.style.top = ((p.y - g.radius) / g.height) * 100 + '%';
+      var label = n === 0 ? 'GO' : n === level.size ? '★' : String(n);
+      if (n === 0) stone.classList.add('start');
+      if (n === level.size) stone.classList.add('final');
+      stone.appendChild(el('div', 'stone-face', label));
+      var f = n > 0 && ML.logic.featureAt(level, n);
+      if (f) { stone.classList.add(f.type); stone.appendChild(badge(f.type)); }
+      stones.appendChild(stone);
+    });
+    board.appendChild(stones);
+    board.appendChild(buildOverlay(level, g));
     section.appendChild(board);
+
+    // Level banner: where the path enters this level (sits just below its start circle).
+    var banner = el('div', 'banner');
+    banner.appendChild(el('div', 'banner-title', 'Level ' + (index + 1) + ': ' + level.name));
+    if (level.subtitle) banner.appendChild(el('div', 'banner-sub', level.subtitle));
+    section.appendChild(banner);
     return section;
   }
 
-  // ---------- Ladder and snake artwork (600x600 coordinate space over the board) ----------
-  var SIZE = 600;
+  // ---------- Ladder and snake artwork (board units) ----------
   var SNAKE_COLOURS = [
     { body: '#ff4b4b', dark: '#c41e1e', spots: '#ffd23f' },
     { body: '#ce82ff', dark: '#8f3fd1', spots: '#fff1a8' },
     { body: '#ff9600', dark: '#c46a00', spots: '#fff1a8' }
   ];
-  var paths = {}; // levelId -> { ladder: {foot: [pts]}, snake: {head: [pts]} } used by climb/slide animations
 
-  function pt(n) { var c = center(n); return { x: c.x * SIZE, y: c.y * SIZE }; }
-  function poly(points) { return points.map(function (p) { return p.x.toFixed(1) + ',' + p.y.toFixed(1); }).join(' '); }
+  // Pull the ends in from the circle centres so the circle numbers stay visible.
+  function inset(a, b, byA, byB) {
+    var dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy);
+    return [
+      { x: a.x + (dx / len) * byA, y: a.y + (dy / len) * byA },
+      { x: b.x - (dx / len) * byB, y: b.y - (dy / len) * byB }
+    ];
+  }
 
   function drawLadder(svg, a, b) {
     var dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy);
@@ -78,10 +109,10 @@
     var px = -uy * 15, py = ux * 15;           // half-width, perpendicular
     var g = svgEl('g', { class: 'ladder-art' });
     var rails = [[px, py], [-px, -py]].map(function (o) {
-      return { x1: a.x + o[0] - ux * 12, y1: a.y + o[1] - uy * 12, x2: b.x + o[0] + ux * 12, y2: b.y + o[1] + uy * 12 };
+      return { x1: a.x + o[0], y1: a.y + o[1], x2: b.x + o[0], y2: b.y + o[1] };
     });
     var rungs = [];
-    for (var d = 22; d < len; d += 30) {
+    for (var d = 14; d < len - 6; d += 30) {
       rungs.push({ x1: a.x + ux * d + px, y1: a.y + uy * d + py, x2: a.x + ux * d - px, y2: a.y + uy * d - py });
     }
     // Dark outline pass, then the bright wood pass on top, for a chunky cartoon look.
@@ -136,26 +167,28 @@
     svg.appendChild(g);
   }
 
-  function buildOverlay(level) {
-    var svg = svgEl('svg', { class: 'overlay', viewBox: '0 0 ' + SIZE + ' ' + SIZE, preserveAspectRatio: 'none' });
+  function buildOverlay(level, g) {
+    var svg = svgEl('svg', { class: 'overlay', viewBox: '0 0 ' + g.width + ' ' + g.height.toFixed(1), preserveAspectRatio: 'none' });
     var store = paths[level.id] = { ladder: {}, snake: {} };
+    var pull = g.radius * 0.7;
     level.ladders.forEach(function (l) {
-      var a = pt(l[0]), b = pt(l[1]);
-      drawLadder(svg, a, b);
+      var a = g.points[l[0]], b = g.points[l[1]], ends = inset(a, b, pull, pull);
+      drawLadder(svg, ends[0], ends[1]);
       store.ladder[l[0]] = [a, b];
     });
     level.snakes.forEach(function (s, i) {
-      var pts = snakePoints(pt(s[0]), pt(s[1]));
+      // The head sits just outside its circle so it doesn't cover the number.
+      var a = g.points[s[0]], b = g.points[s[1]], ends = inset(a, b, g.radius * 1.3, pull);
+      var pts = snakePoints(ends[0], ends[1]);
       drawSnake(svg, pts, SNAKE_COLOURS[i % SNAKE_COLOURS.length]);
-      store.snake[s[0]] = pts;
+      store.snake[s[0]] = [a].concat(pts, [b]);
     });
     return svg;
   }
 
-  var token = null;
-
   ML.board = {
     center: center,
+    geometry: geo,
 
     render: function (container, order) {
       container.innerHTML = '';
@@ -168,36 +201,64 @@
       return document.querySelector('.section[data-level="' + levelId + '"]');
     },
 
-    // Puts the token on a square of a level's section.
+    // Circles up to the player's square are full colour; ones ahead are a lighter tint.
+    setProgress: function (levelId, square) {
+      var stones = this.section(levelId).querySelectorAll('.stone');
+      Array.prototype.forEach.call(stones, function (s) {
+        s.classList.toggle('passed', Number(s.dataset.square) <= square);
+      });
+    },
+
+    // Token position as CSS percentages for square n.
+    tokenPos: function (levelId, n) {
+      var c = center(levelId, n);
+      return { left: c.x * 100 + '%', top: c.y * 100 + '%' };
+    },
+
+    // Puts the token on a square of a level's section (no animation).
     placeToken: function (levelId, square) {
       var board = this.section(levelId).querySelector('.board');
-      if (!token) { token = el('div', 'token'); token.setAttribute('aria-hidden', 'true'); }
+      if (!token) {
+        token = el('div', 'token');
+        token.setAttribute('aria-hidden', 'true');
+        token.appendChild(el('div', 'token-body'));
+      }
       if (token.parentNode !== board) board.appendChild(token);
-      var c = center(square);
-      token.style.left = c.x * 100 + '%';
-      token.style.top = c.y * 100 + '%';
+      var pos = this.tokenPos(levelId, square);
+      token.style.left = pos.left;
+      token.style.top = pos.top;
       return token;
     },
 
     token: function () { return token; },
 
-    // Points (600x600 space) for a ladder climb or snake slide starting at `from`.
+    // Points (board units) for a ladder climb or snake slide starting at `from`.
     featurePath: function (levelId, type, from) {
       return paths[levelId] && paths[levelId][type][from];
     },
 
-    // Animate the token along a list of points, then leave it at the last one.
+    // Animate the token along a list of points (board units), then leave it at the last one.
     travelPath: function (levelId, points, duration, easing) {
-      var t = token; // already on this level's board, sitting at points[0]
+      var g = geo(levelId), t = token;
       var lengths = [0];
       for (var i = 1; i < points.length; i++) {
         lengths.push(lengths[i - 1] + Math.hypot(points[i].x - points[i - 1].x, points[i].y - points[i - 1].y));
       }
       var total = lengths[lengths.length - 1];
-      t.classList.add('no-trans');
       return new Promise(function (resolve) {
-        var start = null;
+        var start = null, done = false;
+        function finish() {
+          if (done) return;
+          done = true;
+          var end = points[points.length - 1];
+          t.style.left = (end.x / g.width) * 100 + '%';
+          t.style.top = (end.y / g.height) * 100 + '%';
+          resolve();
+        }
+        // Fallback in case the browser stops animation frames (e.g. a background tab).
+        setTimeout(finish, duration + 150);
         function frame(now) {
+          if (done) return;
           if (start === null) start = now;
           var k = Math.min(1, (now - start) / duration);
           var d = easing(k) * total, j = 1;
@@ -205,20 +266,20 @@
           var seg = (d - lengths[j - 1]) / ((lengths[j] - lengths[j - 1]) || 1);
           var x = points[j - 1].x + (points[j].x - points[j - 1].x) * seg;
           var y = points[j - 1].y + (points[j].y - points[j - 1].y) * seg;
-          t.style.left = (x / SIZE) * 100 + '%';
-          t.style.top = (y / SIZE) * 100 + '%';
+          t.style.left = (x / g.width) * 100 + '%';
+          t.style.top = (y / g.height) * 100 + '%';
           if (k < 1) requestAnimationFrame(frame);
-          else { t.classList.remove('no-trans'); resolve(); }
+          else finish();
         }
         requestAnimationFrame(frame);
       });
     },
 
-    // Scroll so the given square is comfortably in view.
+    // Scroll so the given square sits a little below the middle of the view.
     scrollTo: function (levelId, square, smooth) {
       var board = this.section(levelId).querySelector('.board');
       var scroller = document.getElementById('scroller');
-      var c = center(square);
+      var c = center(levelId, square);
       var rect = board.getBoundingClientRect();
       var sRect = scroller.getBoundingClientRect();
       var y = rect.top - sRect.top + scroller.scrollTop + c.y * rect.height;

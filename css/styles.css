@@ -76,110 +76,133 @@ button { font-family: inherit; }
   padding: 16px;
 }
 .path {
-  max-width: 520px;
+  max-width: 480px;
   margin: 0 auto;
   display: flex;
   flex-direction: column-reverse; /* Level 1 at the bottom, climbing up */
-  gap: 0;
 }
 .section { --theme: var(--blue); }
 
+/* The board is as tall as its winding path; sizes inside use container units (cqi = 1% of board width). */
 .board {
   position: relative;
   width: 100%;
-  aspect-ratio: 1 / 1; /* 6 columns x (5 square rows + 1 start row) */
+  container-type: inline-size;
 }
-
-.cell {
-  position: absolute;
-  width: calc(100% / 6);
-  height: calc(100% / 6);
-  padding: 3px;
-}
-.cell-inner {
-  width: 100%;
-  height: 100%;
-  border-radius: 12px;
-  background: color-mix(in srgb, var(--theme) 14%, #fff);
-  border-bottom: 4px solid color-mix(in srgb, var(--theme) 28%, #fff);
-  display: flex;
-  align-items: flex-start;
-  justify-content: flex-start;
-  padding: 4px 7px;
-  font-size: 13px;
-  color: color-mix(in srgb, var(--theme) 60%, #333);
-}
-.cell.alt .cell-inner { background: color-mix(in srgb, var(--theme) 24%, #fff); }
-.cell.final .cell-inner {
-  background: var(--yellow);
-  border-bottom-color: #e0a800;
-  color: #7a5b00;
-  justify-content: center;
-  align-items: center;
-  font-size: 22px;
-}
-.cell.ladder .cell-inner { box-shadow: inset 0 0 0 3px var(--green); }
-.cell.snake .cell-inner { box-shadow: inset 0 0 0 3px var(--red); }
-
-/* Start row = level banner, doubles as square 0 */
-.banner {
-  position: absolute;
-  left: 3px; right: 3px;
-  bottom: 3px;
-  height: calc(100% / 6 - 6px);
-  border-radius: var(--radius);
-  background: var(--theme);
-  border-bottom: 5px solid var(--theme-dark);
-  color: #fff;
-  display: flex;
-  align-items: center;
-  padding: 0 14px 0 calc(100% / 6 + 6px);
-}
-.banner-title { font-size: 18px; font-weight: 900; line-height: 1.1; }
-.banner-sub { font-size: 13px; opacity: 0.9; }
-/* Start spot (square 0): the token sits on it */
-.banner-start {
-  position: absolute;
-  left: calc(100% / 12);
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 11%; /* ~2/3 of a column */
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.25);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: 900;
-  letter-spacing: 0.05em;
-}
-
-.overlay {
+.trail, .overlay, .stones {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   pointer-events: none;
 }
+.trail-line {
+  fill: none;
+  stroke: color-mix(in srgb, var(--theme) 28%, #fff);
+  stroke-width: 9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1 22;
+}
 
-/* Token */
-.token {
+/* Stones: chunky raised circles, all in the level's one theme colour.
+   Ahead = light tint of the theme; passed = full theme colour. */
+.stone {
   position: absolute;
-  width: calc(100% / 6 * 0.6);
-  height: calc(100% / 6 * 0.6);
+  width: 15.333%; /* 92 of 600 board units */
+  aspect-ratio: 1;
+}
+.stone-face {
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
-  background: #fff;
-  border: 4px solid var(--ink);
-  box-shadow: 0 4px 0 rgba(0,0,0,0.25);
-  transform: translate(-50%, -50%);
-  transition: left 0.35s ease, top 0.35s ease;
-  z-index: 3;
+  background: color-mix(in srgb, var(--theme) 30%, #fff);
+  box-shadow: 0 1.3cqi 0 color-mix(in srgb, var(--theme) 50%, #fff),
+              inset 0 -0.8cqi 0 rgba(0,0,0,0.06);
+  color: color-mix(in srgb, var(--theme-dark) 85%, #000);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  font-size: 5.2cqi;
+  font-weight: 900;
+  transition: background 0.3s, box-shadow 0.3s, color 0.3s;
 }
+.stone.passed .stone-face {
+  background: var(--theme);
+  box-shadow: 0 1.3cqi 0 var(--theme-dark), inset 0 -0.8cqi 0 rgba(0,0,0,0.08);
+  color: #fff;
+}
+.stone.start .stone-face {
+  background: #fff;
+  box-shadow: 0 1.3cqi 0 color-mix(in srgb, var(--theme) 50%, #fff), inset 0 0 0 0.8cqi var(--theme);
+  color: var(--theme-dark);
+  font-size: 4.2cqi;
+}
+.stone.final .stone-face {
+  background: var(--yellow);
+  box-shadow: 0 1.3cqi 0 #e0a800;
+  color: #fff;
+  font-size: 7cqi;
+}
+.stone-badge {
+  position: absolute;
+  right: -8%;
+  top: -8%;
+  width: 42%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 0.6cqi solid #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.stone-badge svg { width: 72%; height: 72%; }
+.stone-badge-ladder { background: var(--green); }
+.stone-badge-snake { background: var(--red); }
+
+/* Level banner: where the path enters a level */
+.banner {
+  margin: 4px 0 10px;
+  padding: 14px 18px;
+  border-radius: var(--radius);
+  background: var(--theme);
+  box-shadow: 0 5px 0 var(--theme-dark);
+  color: #fff;
+}
+.banner-title { font-size: 18px; font-weight: 900; line-height: 1.15; }
+.banner-sub { font-size: 13px; opacity: 0.9; }
+
+/* Playing piece: the outer element moves; the body hops and squashes. */
+.token {
+  position: absolute;
+  width: 9.5cqi;
+  aspect-ratio: 1;
+  transform: translate(-50%, -62%);
+  z-index: 3;
+  pointer-events: none;
+}
+.token-body {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #fff;
+  border: 0.9cqi solid var(--ink);
+  box-shadow: 0 1cqi 0 rgba(0,0,0,0.25);
+  transform-origin: 50% 100%;
+  position: relative;
+}
+/* Two little eyes for a bit of character. */
+.token-body::before, .token-body::after {
+  content: '';
+  position: absolute;
+  top: 34%;
+  width: 18%;
+  height: 26%;
+  border-radius: 50%;
+  background: var(--ink);
+}
+.token-body::before { left: 26%; }
+.token-body::after { right: 26%; }
 
 /* ===== Dock ===== */
 .dock {
@@ -385,7 +408,6 @@ button { font-family: inherit; }
 }
 .dice-label.show { opacity: 1; transform: translateX(-50%) scale(1); }
 
-.token.no-trans { transition: none; }
 
 .confetti { position: fixed; inset: 0; pointer-events: none; z-index: 30; overflow: hidden; }
 
