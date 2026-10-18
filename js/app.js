@@ -5,7 +5,8 @@
 
   var PRAISE = ['Nice!', 'Great job!', 'Spot on!', 'You got it!', 'Correct!'];
 
-  var state = { levelId: null, square: 0, used: [], answered: 0, correct: 0, busy: false };
+  // progress: { levelId: { completed } } (kept in memory for now; saved in slice 5)
+  var state = { levelId: null, square: 0, used: [], answered: 0, correct: 0, busy: false, progress: {} };
   var turn = null; // { start, landed, question, shuffled, selected, checked, result }
 
   function level() { return ML.levels[state.levelId]; }
@@ -31,15 +32,16 @@
   }
 
   // ---------- Level ----------
-  function startLevel(id) {
+  function startLevel(id, smooth) {
     state.levelId = id;
     state.square = 0;
     state.used = []; // fresh random draw each game: no repeats within a game
     state.answered = 0;
     state.correct = 0;
+    refreshLevels();
     updateHud();
     ML.board.placeToken(id, 0);
-    ML.board.scrollTo(id, 0, false);
+    ML.board.scrollTo(id, 0, !!smooth);
     say('Roll the dice to start ' + level().name + '!');
     setRollEnabled(true);
   }
@@ -226,25 +228,77 @@
     setRollEnabled(true);
   }
 
-  // ---------- Level complete ----------
+  // ---------- Modal (level complete, switching levels) ----------
+  // actions: [{ label, primary, onClick }]
+  function showModal(icon, title, text, actions) {
+    $('modalIcon').textContent = icon;
+    $('completeTitle').textContent = title;
+    $('completeText').textContent = text;
+    var box = $('completeActions');
+    box.innerHTML = '';
+    actions.forEach(function (a) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'btn ' + (a.primary ? 'btn-primary' : 'btn-secondary');
+      b.textContent = a.label;
+      b.addEventListener('click', function () { $('complete').hidden = true; a.onClick(); });
+      box.appendChild(b);
+    });
+    $('complete').hidden = false;
+    box.firstChild.focus();
+  }
+
+  function nextLevelId(id) {
+    var i = ML.LEVEL_ORDER.indexOf(id);
+    return i >= 0 && i < ML.LEVEL_ORDER.length - 1 ? ML.LEVEL_ORDER[i + 1] : null;
+  }
+
   function showComplete() {
     var lv = level();
-    $('completeTitle').textContent = lv.name + ' complete!';
-    $('completeText').textContent = 'You answered ' + state.correct + ' of ' + state.answered + ' questions correctly.';
-    var actions = $('completeActions');
-    actions.innerHTML = '';
-    var again = document.createElement('button');
-    again.type = 'button';
-    again.className = 'btn btn-primary';
-    again.textContent = 'Play again';
-    again.addEventListener('click', function () {
-      $('complete').hidden = true;
-      startLevel(lv.id);
-    });
-    actions.appendChild(again);
-    $('complete').hidden = false;
-    again.focus();
+    state.progress[lv.id] = { completed: true };
+    refreshLevels();
+    var score = 'You answered ' + state.correct + ' of ' + state.answered + (state.answered === 1 ? ' question' : ' questions') + ' correctly.';
+    var next = nextLevelId(lv.id);
+    var actions = [];
+    if (next) {
+      actions.push({ label: 'Next level: ' + ML.levels[next].name, primary: true, onClick: function () { startLevel(next, true); } });
+      actions.push({ label: 'Play again', onClick: function () { startLevel(lv.id); } });
+    } else {
+      score += ' That\'s every level done!';
+      actions.push({ label: 'Play again', primary: true, onClick: function () { startLevel(lv.id); } });
+    }
+    showModal('🏆', lv.name + ' complete!', score, actions);
     say('Level complete!');
+  }
+
+  // ---------- Level unlocking and selection ----------
+  // Each section shows whether it's locked, being played, completed or ready to play.
+  function refreshLevels() {
+    var order = ML.LEVEL_ORDER;
+    order.forEach(function (id, i) {
+      var unlocked = L.isUnlocked(id, order, state.progress);
+      var completed = !!(state.progress[id] && state.progress[id].completed);
+      var current = id === state.levelId;
+      var label;
+      if (!unlocked) label = '🔒 Finish Level ' + i + ' first';
+      else if (current) label = '▶ Playing now';
+      else if (completed) label = '✓ Completed · tap to replay';
+      else label = 'Tap to play';
+      ML.board.setStatus(id, { locked: !unlocked, completed: completed, current: current, selectable: unlocked && !current, label: label });
+      if (!current) ML.board.setProgress(id, completed ? ML.levels[id].size : -1);
+    });
+  }
+
+  // Tapping an unlocked level's banner. Confirm first if it would abandon a game in progress.
+  function selectLevel(id) {
+    if (state.busy) return;
+    var name = ML.levels[id].name;
+    var inProgress = state.square > 0 && state.square < level().size;
+    if (!inProgress) { startLevel(id, true); return; }
+    showModal('🎲', 'Switch to ' + name + '?', 'You\'ll lose your place in ' + level().name + ' and start ' + name + ' from the beginning.', [
+      { label: 'Play ' + name, primary: true, onClick: function () { startLevel(id, true); } },
+      { label: 'Keep playing ' + level().name, onClick: function () {} }
+    ]);
   }
 
   // ---------- Boot ----------
@@ -256,7 +310,7 @@
       say(err.message);
       return;
     }
-    ML.board.render($('path'), ML.LEVEL_ORDER);
+    ML.board.render($('path'), ML.LEVEL_ORDER, selectLevel);
     $('rollBtn').addEventListener('click', roll);
     $('checkBtn').addEventListener('click', onCheck);
     startLevel(ML.LEVEL_ORDER[0]);

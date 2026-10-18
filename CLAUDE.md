@@ -106,5 +106,7 @@ Content rules:
 - Questions: drawn completely at random from the level's pool on every roll, ignoring difficulty and board position, with no repeats within a game. Each new game draws afresh. The difficulty label isn't shown to the player, and the `difficulty` field is kept for reference only.
 - Question pool: about 40 per level (changed from 20).
 - Missed-question resurfacing: not in v1.
+- Level colours: Paid social is blue (#1cb0f6) and Paid search is green (#58cc02). Each new level gets its own distinct colour.
+- Unlocking and selection: a level is greyed out with a lock until the previous level is completed. Finishing a level offers "Next level" or "Play again". Tapping an unlocked level's banner plays or replays it, with a confirmation first if a game is in progress elsewhere.
 - Replay: completed sections can be replayed.
 - Runtime: zero install. Plain HTML, CSS and JS; double-click index.html to play and tests.html to run the tests.

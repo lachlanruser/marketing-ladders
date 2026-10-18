@@ -169,8 +169,27 @@ button { font-family: inherit; }
   box-shadow: 0 5px 0 var(--theme-dark);
   color: #fff;
 }
+.banner { display: flex; align-items: center; gap: 12px; }
+.banner-text { flex: 1; min-width: 0; }
 .banner-title { font-size: 18px; font-weight: 900; line-height: 1.15; }
 .banner-sub { font-size: 13px; opacity: 0.9; }
+.banner-status {
+  font-size: 13px;
+  font-weight: 800;
+  text-align: right;
+  background: rgba(255,255,255,0.22);
+  border-radius: 999px;
+  padding: 6px 12px;
+  max-width: 50%;
+}
+.banner-status:empty { display: none; }
+.section.selectable .banner { cursor: pointer; transition: transform 0.1s, box-shadow 0.1s; }
+.section.selectable .banner:hover { transform: translateY(-2px); box-shadow: 0 7px 0 var(--theme-dark); }
+.section.selectable .banner:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--theme-dark); }
+
+/* Locked level: greyed out until the previous level is completed. */
+.section.locked .board { filter: grayscale(1); opacity: 0.45; }
+.section.locked .banner { background: #afafaf; box-shadow: 0 5px 0 #8a8a8a; }
 
 /* Playing piece: the outer element moves; the body hops and squashes. */
 .token {
