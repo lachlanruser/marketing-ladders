@@ -1,7 +1,7 @@
 ML.registerLevel({
-  id: 'paid-social',
-  name: 'Paid social',
-  subtitle: 'Meta, TikTok and LinkedIn',
+  id: 'meta',
+  name: 'Meta',
+  subtitle: 'Facebook and Instagram ads',
   theme: '#1cb0f6',
   themeDark: '#1899d6',
   size: 15,
@@ -11,6 +11,6 @@ ML.registerLevel({
   ladders: [[3, 10], [6, 14]],
   // [head, tail]: a wrong answer on the head slides to the tail.
   snakes: [[9, 4], [12, 7]],
-  // Path shape: seed picks the quirky bend pattern. Optional: amplitude: [min, max], bendHeight: [min, max].
+  // Path shape: seed picks the quirky bend pattern.
   path: { seed: 3 }
 });

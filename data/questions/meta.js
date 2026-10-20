@@ -1,12 +1,10 @@
-// Paid social question bank (Level 1).
+// Meta question bank.
 // Every question is checked against the official page in sourceUrl on the lastVerified date.
 // Writing rules (balanced lengths, believable wrong answers, trick questions): see README.md.
-// "trick": true marks trick-style questions (NOT questions, near-miss numbers, myth-busters).
-// Set "flagged": true on any question that can't be verified; the game skips flagged questions.
-ML.registerQuestions('paid-social', [
-  // ---------- Difficulty 1 ----------
+// "trick": true marks trick-style questions. Set "flagged": true on anything that can't be verified.
+ML.registerQuestions('meta', [
   {
-    id: 'ps-001', level: 'paid-social', difficulty: 1, type: 'multiple_choice', platform: 'Meta', trick: true,
+    id: 'ps-001', level: 'meta', difficulty: 1, type: 'multiple_choice', platform: 'Meta', trick: true,
     prompt: 'In Meta\'s ad auction, which ad wins?',
     options: [
       'The ad with the highest bid, adjusted for how evenly its budget is pacing',
@@ -20,7 +18,7 @@ ML.registerQuestions('paid-social', [
     lastVerified: '2026-10-13'
   },
   {
-    id: 'ps-002', level: 'paid-social', difficulty: 1, type: 'multiple_choice', platform: 'Meta',
+    id: 'ps-002', level: 'meta', difficulty: 1, type: 'multiple_choice', platform: 'Meta',
     prompt: 'What does a Meta lookalike audience do?',
     options: [
       'Reaches new people who share traits with a source audience you choose',
@@ -34,37 +32,7 @@ ML.registerQuestions('paid-social', [
     lastVerified: '2026-10-13'
   },
   {
-    id: 'ps-003', level: 'paid-social', difficulty: 1, type: 'multiple_choice', platform: 'TikTok',
-    prompt: 'What is distinctive about TikTok Spark Ads?',
-    options: [
-      'Engagement from the paid run is credited to the original organic post',
-      'They are shown in TikTok search results rather than in the For You feed',
-      'They let you run video ads that don\'t appear on any TikTok profile',
-      'They use a creator\'s follower list to target that creator\'s audience'
-    ],
-    correctIndex: 0,
-    explanation: 'Spark Ads boost organic posts (yours, or a creator\'s with their authorisation), and the views, likes, comments, shares and follows all go to the original post. Ads that don\'t appear on any profile are standard in-feed ads, not Spark Ads.',
-    sourceUrl: 'https://ads.tiktok.com/help/article/spark-ads?lang=en',
-    lastVerified: '2026-10-13'
-  },
-  {
-    id: 'ps-004', level: 'paid-social', difficulty: 1, type: 'multiple_choice', platform: 'LinkedIn',
-    prompt: 'What\'s the main reason LinkedIn Lead Gen Forms reduce drop-off compared with a landing page?',
-    options: [
-      'They auto-fill contact and profile details from the member\'s profile',
-      'They\'re charged per completed lead rather than per click or impression',
-      'They\'re shown to members who already follow your Company Page',
-      'They skip the privacy policy step, so the form is quicker to finish'
-    ],
-    correctIndex: 0,
-    explanation: 'Dynamic prefill fills in details from the member\'s profile, so there\'s far less typing. Lead Gen Forms cost nothing extra beyond the ads themselves, and every form needs a privacy policy URL.',
-    sourceUrl: 'https://www.linkedin.com/help/lms/answer/a423447',
-    lastVerified: '2026-10-13'
-  },
-
-  // ---------- Difficulty 2 ----------
-  {
-    id: 'ps-005', level: 'paid-social', difficulty: 2, type: 'multiple_choice', platform: 'Meta', trick: true,
+    id: 'ps-005', level: 'meta', difficulty: 2, type: 'multiple_choice', platform: 'Meta', trick: true,
     prompt: 'Roughly when does a Meta ad set usually exit the learning phase?',
     options: [
       'After about 25 results in the week after its last significant edit',
@@ -78,7 +46,7 @@ ML.registerQuestions('paid-social', [
     lastVerified: '2026-10-13'
   },
   {
-    id: 'ps-006', level: 'paid-social', difficulty: 2, type: 'multiple_choice', platform: 'Meta',
+    id: 'ps-006', level: 'meta', difficulty: 2, type: 'multiple_choice', platform: 'Meta',
     prompt: 'You want to reach people who visited your website but didn\'t buy. Which audience fits best?',
     options: [
       'A lookalike audience built from your website visitors',
@@ -92,7 +60,7 @@ ML.registerQuestions('paid-social', [
     lastVerified: '2026-10-13'
   },
   {
-    id: 'ps-007', level: 'paid-social', difficulty: 2, type: 'multiple_choice', platform: 'Meta',
+    id: 'ps-007', level: 'meta', difficulty: 2, type: 'multiple_choice', platform: 'Meta',
     prompt: 'When building a lookalike audience, what does choosing a smaller percentage range give you?',
     options: [
       'A smaller audience that more closely matches your source',
@@ -106,27 +74,11 @@ ML.registerQuestions('paid-social', [
     lastVerified: '2026-10-13'
   },
   {
-    id: 'ps-008', level: 'paid-social', difficulty: 2, type: 'multiple_choice', platform: 'LinkedIn', trick: true,
-    prompt: 'Which LinkedIn conversion tracking method does NOT need the Insight Tag installed on your site?',
-    options: [
-      'Event-specific tracking with an image pixel',
-      'Website Actions that auto-tag clicks and form fills',
-      'Page load conversions set up with URL rules',
-      'Event-specific conversions added to a button'
-    ],
-    correctIndex: 0,
-    explanation: 'Website Actions, page load conversions and event-specific conversions all need the Insight Tag. An event-specific image pixel is the one method that works without it.',
-    sourceUrl: 'https://www.linkedin.com/help/lms/answer/a425606',
-    lastVerified: '2026-10-13'
-  },
-
-  // ---------- Difficulty 3 ----------
-  {
-    id: 'ps-009', level: 'paid-social', difficulty: 3, type: 'multiple_choice', platform: 'Meta',
+    id: 'ps-009', level: 'meta', difficulty: 3, type: 'multiple_choice', platform: 'Meta',
     prompt: 'With Advantage+ campaign budget on, one ad set is taking most of the spend. What should you do?',
     options: [
       'Judge results at campaign level, since uneven spend is expected',
-      'Pause the low-spend ad sets so the budget isn\'t spread too thin',
+      'Pause the low-spend ad sets so the budget isn\'t spread too thinly',
       'Move each ad set into its own campaign to get equal budgets',
       'Switch to a lifetime budget so spend is split evenly over time'
     ],
@@ -136,12 +88,12 @@ ML.registerQuestions('paid-social', [
     lastVerified: '2026-10-13'
   },
   {
-    id: 'ps-010', level: 'paid-social', difficulty: 3, type: 'scenario', platform: 'Meta', trick: true,
+    id: 'ps-010', level: 'meta', difficulty: 3, type: 'scenario', platform: 'Meta', trick: true,
     prompt: 'A client sees that Instagram has a higher cost per result than Facebook in their Advantage+ placements campaign, and wants to turn Instagram off. What do you advise?',
     options: [
       'Turn Instagram off and move its budget to the cheaper Facebook placement',
       'Leave it on: Meta aims for the lowest average cost across all placements',
-      'Keep it on, but set a cost per result goal on Instagram to cap its cost',
+      'Keep it on, but set a cost per result goal on Instagram to cap its own cost',
       'Split Instagram into its own ad set so each placement optimises alone'
     ],
     correctIndex: 1,
@@ -150,7 +102,7 @@ ML.registerQuestions('paid-social', [
     lastVerified: '2026-10-13'
   },
   {
-    id: 'ps-011', level: 'paid-social', difficulty: 3, type: 'multiple_choice', platform: 'Meta',
+    id: 'ps-011', level: 'meta', difficulty: 3, type: 'multiple_choice', platform: 'Meta',
     prompt: 'What is the main job of Meta\'s Conversions API?',
     options: [
       'Sending events from your server, app or CRM directly to Meta',
@@ -164,23 +116,7 @@ ML.registerQuestions('paid-social', [
     lastVerified: '2026-10-13'
   },
   {
-    id: 'ps-012', level: 'paid-social', difficulty: 3, type: 'multiple_choice', platform: 'TikTok',
-    prompt: 'What setup does TikTok recommend for website conversion tracking?',
-    options: [
-      'The TikTok Pixel alone, because server events add duplicates',
-      'The Events API alone, because browsers lose too many events',
-      'The Pixel and Events API together, with event deduplication',
-      'The Pixel, plus offline uploads for any CRM conversions'
-    ],
-    correctIndex: 2,
-    explanation: 'TikTok recommends using the Pixel and Events API together, with deduplication. The server connection recovers conversions the Pixel misses, and deduplication stops the same event being counted twice.',
-    sourceUrl: 'https://ads.tiktok.com/help/article/events-api',
-    lastVerified: '2026-10-13'
-  },
-
-  // ---------- Difficulty 4 ----------
-  {
-    id: 'ps-013', level: 'paid-social', difficulty: 4, type: 'multiple_choice', platform: 'Meta', trick: true,
+    id: 'ps-013', level: 'meta', difficulty: 4, type: 'multiple_choice', platform: 'Meta', trick: true,
     prompt: 'Which statement about Meta\'s ad relevance diagnostics is NOT true?',
     options: [
       'They are inputs the ad auction uses to pick the winning ad',
@@ -194,7 +130,7 @@ ML.registerQuestions('paid-social', [
     lastVerified: '2026-10-13'
   },
   {
-    id: 'ps-014', level: 'paid-social', difficulty: 4, type: 'scenario', platform: 'Meta',
+    id: 'ps-014', level: 'meta', difficulty: 4, type: 'scenario', platform: 'Meta',
     prompt: 'A client wants to test two audiences by switching one ad set off and the other on each week. What\'s the better approach?',
     options: [
       'Keep alternating weekly, but run the test for at least a month',
@@ -208,7 +144,7 @@ ML.registerQuestions('paid-social', [
     lastVerified: '2026-10-13'
   },
   {
-    id: 'ps-015', level: 'paid-social', difficulty: 4, type: 'multiple_choice', platform: 'Meta', trick: true,
+    id: 'ps-015', level: 'meta', difficulty: 4, type: 'multiple_choice', platform: 'Meta', trick: true,
     prompt: 'Which of these changes is NOT a significant edit that sends a Meta ad set back into learning?',
     options: [
       'Adding a new ad to the ad set',
@@ -222,7 +158,7 @@ ML.registerQuestions('paid-social', [
     lastVerified: '2026-10-13'
   },
   {
-    id: 'ps-016', level: 'paid-social', difficulty: 4, type: 'scenario', platform: 'Meta',
+    id: 'ps-016', level: 'meta', difficulty: 4, type: 'scenario', platform: 'Meta',
     prompt: 'A recruitment client wants to advertise job vacancies on Meta. What must you do at campaign setup?',
     options: [
       'Choose the employment Special Ad Category, which limits targeting',
@@ -235,10 +171,8 @@ ML.registerQuestions('paid-social', [
     sourceUrl: 'https://www.facebook.com/business/help/298000447747885',
     lastVerified: '2026-10-13'
   },
-
-  // ---------- Difficulty 5 ----------
   {
-    id: 'ps-017', level: 'paid-social', difficulty: 5, type: 'multiple_choice', platform: 'Meta', trick: true,
+    id: 'ps-017', level: 'meta', difficulty: 5, type: 'multiple_choice', platform: 'Meta', trick: true,
     prompt: 'You send purchases through both the Meta Pixel and the Conversions API. What\'s the recommended way to stop them being counted twice?',
     options: [
       'Send the server event within 48 hours of the browser event',
@@ -252,10 +186,10 @@ ML.registerQuestions('paid-social', [
     lastVerified: '2026-10-13'
   },
   {
-    id: 'ps-018', level: 'paid-social', difficulty: 5, type: 'scenario', platform: 'Meta',
+    id: 'ps-018', level: 'meta', difficulty: 5, type: 'scenario', platform: 'Meta',
     prompt: 'Ad set A uses standard attribution and ad set B uses incremental attribution. A client wants to pick the winner from the campaign overview table. What do you tell them?',
     options: [
-      'Pick B, as incremental attribution counts more conversions',
+      'Pick B, as incremental attribution tends to count more conversions',
       'Don\'t compare them there; use compare attribution settings',
       'Pick whichever shows more conversions over the same 7 days',
       'Set both to 1-day view first, then compare in that table'
@@ -266,7 +200,7 @@ ML.registerQuestions('paid-social', [
     lastVerified: '2026-10-13'
   },
   {
-    id: 'ps-019', level: 'paid-social', difficulty: 5, type: 'scenario', platform: 'Meta',
+    id: 'ps-019', level: 'meta', difficulty: 5, type: 'scenario', platform: 'Meta',
     prompt: 'An ad set optimising for purchases on a small budget shows "Learning limited". Which change does Meta suggest?',
     options: [
       'Split it into smaller ad sets so each one can learn faster',
@@ -280,23 +214,7 @@ ML.registerQuestions('paid-social', [
     lastVerified: '2026-10-13'
   },
   {
-    id: 'ps-020', level: 'paid-social', difficulty: 5, type: 'multiple_choice', platform: 'LinkedIn',
-    prompt: 'Which is true of LinkedIn Thought Leader Ads?',
-    options: [
-      'They sponsor an individual member\'s post once the author approves',
-      'They let you add your own headline and CTA button to the post',
-      'They promote Company Page posts written by your exec team',
-      'They send a sponsored message to an exec\'s 1st-degree connections'
-    ],
-    correctIndex: 0,
-    explanation: 'Thought Leader Ads sponsor posts by individuals (employees, experts, customers or creators) after the author approves the request in Campaign Manager. Edits to the post come from its author, and LinkedIn doesn\'t add call-to-action buttons.',
-    sourceUrl: 'https://business.linkedin.com/advertise/ads/sponsored-content/thought-leader-ads',
-    lastVerified: '2026-10-13'
-  },
-
-  // ---------- Batch 2 (questions are drawn at random; difficulty is kept for reference) ----------
-  {
-    id: 'ps-021', level: 'paid-social', difficulty: 1, type: 'multiple_choice', platform: 'Meta', trick: true,
+    id: 'ps-021', level: 'meta', difficulty: 1, type: 'multiple_choice', platform: 'Meta', trick: true,
     prompt: 'Which of these is NOT one of the six campaign objectives in Meta Ads Manager?',
     options: ['Awareness', 'Engagement', 'App promotion', 'Conversions'],
     correctIndex: 3,
@@ -305,7 +223,7 @@ ML.registerQuestions('paid-social', [
     lastVerified: '2026-10-13'
   },
   {
-    id: 'ps-022', level: 'paid-social', difficulty: 3, type: 'scenario', platform: 'Meta',
+    id: 'ps-022', level: 'meta', difficulty: 3, type: 'scenario', platform: 'Meta',
     prompt: 'A week-long ad set with a lifetime budget starts during a spell of expensive, competitive auctions. What does Meta\'s pacing do?',
     options: [
       'Holds some budget back for cheaper results later in the week',
@@ -319,7 +237,7 @@ ML.registerQuestions('paid-social', [
     lastVerified: '2026-10-13'
   },
   {
-    id: 'ps-023', level: 'paid-social', difficulty: 4, type: 'multiple_choice', platform: 'Meta', trick: true,
+    id: 'ps-023', level: 'meta', difficulty: 4, type: 'multiple_choice', platform: 'Meta', trick: true,
     prompt: 'In Meta Ads Manager, when does an ad show "Creative fatigue" rather than "Creative limited"?',
     options: [
       'When cost per result is at least twice that of your past ads',
@@ -333,7 +251,7 @@ ML.registerQuestions('paid-social', [
     lastVerified: '2026-10-13'
   },
   {
-    id: 'ps-024', level: 'paid-social', difficulty: 3, type: 'multiple_choice', platform: 'Meta', trick: true,
+    id: 'ps-024', level: 'meta', difficulty: 3, type: 'multiple_choice', platform: 'Meta', trick: true,
     prompt: 'Two of your ad sets target overlapping audiences, so both are eligible for the same auction. What happens?',
     options: [
       'Both bid, so you push up your own costs by competing',
@@ -347,7 +265,7 @@ ML.registerQuestions('paid-social', [
     lastVerified: '2026-10-13'
   },
   {
-    id: 'ps-025', level: 'paid-social', difficulty: 2, type: 'multiple_choice', platform: 'Meta',
+    id: 'ps-025', level: 'meta', difficulty: 2, type: 'multiple_choice', platform: 'Meta',
     prompt: 'Which Meta bid strategy sets the maximum you\'ll bid in every single auction?',
     options: [
       'Bid cap (manual bidding)',
@@ -361,16 +279,16 @@ ML.registerQuestions('paid-social', [
     lastVerified: '2026-10-13'
   },
   {
-    id: 'ps-026', level: 'paid-social', difficulty: 4, type: 'multiple_choice', platform: 'Meta', trick: true,
+    id: 'ps-026', level: 'meta', difficulty: 4, type: 'multiple_choice', platform: 'Meta', trick: true,
     prompt: 'You want every USD 100 of spend to bring in about USD 110 of purchases. What ROAS goal do you enter?',
-    options: ['1.100', '0.110', '11.00', '110.0'],
+    options: ['1.100', '0.110', '11.00', '110.00'],
     correctIndex: 0,
     explanation: 'The ROAS goal is entered as a ratio of purchase value to spend: USD 110 back on USD 100 is a 110% return, entered as 1.100. Meta aims to stay near this average, but it isn\'t guaranteed.',
     sourceUrl: 'https://www.facebook.com/business/help/1619591734742116',
     lastVerified: '2026-10-13'
   },
   {
-    id: 'ps-027', level: 'paid-social', difficulty: 5, type: 'multiple_choice', platform: 'Meta', trick: true,
+    id: 'ps-027', level: 'meta', difficulty: 5, type: 'multiple_choice', platform: 'Meta', trick: true,
     prompt: 'For goal-based bidding (cost per result or ROAS goal), how many weekly conversions does Meta recommend for best performance?',
     options: ['25 or more', '50–100 or more', '10–20 or more', '200 or more'],
     correctIndex: 1,
@@ -379,7 +297,7 @@ ML.registerQuestions('paid-social', [
     lastVerified: '2026-10-13'
   },
   {
-    id: 'ps-028', level: 'paid-social', difficulty: 4, type: 'multiple_choice', platform: 'Meta',
+    id: 'ps-028', level: 'meta', difficulty: 4, type: 'multiple_choice', platform: 'Meta',
     prompt: 'What does Meta\'s event match quality (EMQ) score tell you?',
     options: [
       'How well the customer details sent with server events match to Meta accounts',
@@ -393,7 +311,7 @@ ML.registerQuestions('paid-social', [
     lastVerified: '2026-10-13'
   },
   {
-    id: 'ps-029', level: 'paid-social', difficulty: 5, type: 'multiple_choice', platform: 'Meta', trick: true,
+    id: 'ps-029', level: 'meta', difficulty: 5, type: 'multiple_choice', platform: 'Meta', trick: true,
     prompt: 'As a guide, what does Meta say a campaign needs before you can run a self-serve conversion lift test?',
     options: [
       'USD 5,000+ spend and 500+ conversions, started in the past year',
@@ -407,7 +325,7 @@ ML.registerQuestions('paid-social', [
     lastVerified: '2026-10-13'
   },
   {
-    id: 'ps-030', level: 'paid-social', difficulty: 2, type: 'multiple_choice', platform: 'Meta',
+    id: 'ps-030', level: 'meta', difficulty: 2, type: 'multiple_choice', platform: 'Meta',
     prompt: 'What does Meta\'s "maximise value of conversions" performance goal do?',
     options: [
       'Gets the most conversions possible at the lowest cost per result',
@@ -421,7 +339,7 @@ ML.registerQuestions('paid-social', [
     lastVerified: '2026-10-13'
   },
   {
-    id: 'ps-031', level: 'paid-social', difficulty: 3, type: 'scenario', platform: 'Meta',
+    id: 'ps-031', level: 'meta', difficulty: 3, type: 'scenario', platform: 'Meta',
     prompt: 'A client launches 40 ads across 10 ad sets on a small budget, and few of them exit learning. What\'s the most likely fix?',
     options: [
       'Combine ad sets and run fewer ads so each one gets more delivery',
@@ -434,115 +352,191 @@ ML.registerQuestions('paid-social', [
     sourceUrl: 'https://www.facebook.com/business/help/2720085414702598',
     lastVerified: '2026-10-13'
   },
+
+  // ---------- Added for the v2 Meta level ----------
   {
-    id: 'ps-032', level: 'paid-social', difficulty: 1, type: 'multiple_choice', platform: 'TikTok',
-    prompt: 'What do you need to give TikTok to set up a Smart+ campaign?',
+    id: 'meta-041', level: 'meta', difficulty: 3, type: 'multiple_choice', platform: 'Meta', trick: true,
+    prompt: 'On a day with better opportunities, how far over an ad set\'s daily budget can Meta spend (without budget sharing)?',
+    options: ['Up to 75% over', 'Up to 25% over', 'Up to 100% over', 'Up to 50% over'],
+    correctIndex: 0,
+    explanation: 'Meta may spend up to 75% over your daily budget on a strong day, balancing it out across the week. Google Ads allows up to twice the daily budget, which is why 100% is tempting.',
+    sourceUrl: 'https://www.facebook.com/business/help/190490051321426',
+    lastVerified: '2026-10-20'
+  },
+  {
+    id: 'meta-042', level: 'meta', difficulty: 4, type: 'multiple_choice', platform: 'Meta',
+    prompt: 'Over what period does Meta make sure a daily budget isn\'t exceeded overall?',
     options: [
-      'Your KPIs, creative assets, and target geography and language',
-      'Detailed interest targeting, bids for each ad group, and a schedule',
-      'A Spark Ads authorisation code from every creator you work with',
-      'A finished set of ad variations for every placement and format'
+      'A calendar week, Sunday to Saturday',
+      'Each 24 hours, from midnight to midnight',
+      'A rolling 30-day window',
+      'The whole campaign schedule'
     ],
     correctIndex: 0,
-    explanation: 'Smart+ is TikTok\'s AI-driven campaign type. You supply KPIs, creative assets, and target geography and language, and TikTok automates targeting, optimisation and creative combinations.',
-    sourceUrl: 'https://ads.tiktok.com/help/article/about-smart-plus-campaign?lang=en',
-    lastVerified: '2026-10-13'
+    explanation: 'A daily budget is a spending target over a calendar week (Sunday to Saturday). Some days spend more and some less, but Meta won\'t go over your daily or weekly spending limits overall.',
+    sourceUrl: 'https://www.facebook.com/business/help/190490051321426',
+    lastVerified: '2026-10-20'
   },
   {
-    id: 'ps-033', level: 'paid-social', difficulty: 4, type: 'multiple_choice', platform: 'TikTok', trick: true,
-    prompt: 'In TikTok Ads Manager (Self-Attributing Network), which view-through attribution (VTA) window options can you choose?',
-    options: ['Off or 1 day', '1 day or 7 days', '7 days or 28 days', 'Off, 1 day or 7 days'],
+    id: 'meta-043', level: 'meta', difficulty: 5, type: 'multiple_choice', platform: 'Meta', trick: true,
+    prompt: 'With ad set budget sharing on, how much of an ad set\'s flexible daily budget can Meta share with other ad sets?',
+    options: ['Up to 20%', 'Up to 100%', 'Up to 10%', 'Up to 75%'],
     correctIndex: 0,
-    explanation: 'VTA can be off or 1 day. Click-through (CTA) and engaged view-through (EVTA) can each be 1 or 7 days, which is why "1 day or 7 days" is a tempting wrong answer.',
-    sourceUrl: 'https://ads.tiktok.com/help/article/about-the-attribution-window-on-tiktok-ads-manager?lang=en',
-    lastVerified: '2026-10-13'
+    explanation: 'Budget sharing lets Meta share up to 20% of an ad set\'s flexible daily budget with other ad sets, which on top of the 75% flexibility can mean up to 210% of the daily budget.',
+    sourceUrl: 'https://www.facebook.com/business/help/190490051321426',
+    lastVerified: '2026-10-20'
   },
   {
-    id: 'ps-034', level: 'paid-social', difficulty: 2, type: 'multiple_choice', platform: 'TikTok',
-    prompt: 'What must be set up before you can use TikTok\'s Web Conversions objective?',
+    id: 'meta-044', level: 'meta', difficulty: 1, type: 'multiple_choice', platform: 'Meta',
+    prompt: 'What counts as a landing page view on Meta?',
     options: [
-      'The TikTok Pixel or the Events API',
-      'A TikTok Shop with a product catalogue',
-      'A Business Center and a Spark Ads code',
-      'An instant form and a CRM integration'
+      'A click on your ad link that fully loads the destination page',
+      'Any click on any part of your ad, including likes and comments',
+      'Someone scrolling past your ad for at least 2 seconds',
+      'A visit to your site from any source within 7 days'
     ],
     correctIndex: 0,
-    explanation: 'A Pixel or Events API setup is a prerequisite for Web Conversions. For best results, TikTok recommends using both together, with deduplication.',
-    sourceUrl: 'https://ads.tiktok.com/help/article/events-api',
-    lastVerified: '2026-10-13'
+    explanation: 'A landing page view is when someone clicks your ad link and successfully loads the destination. Optimising for it targets people likely to click and wait for the page to load, which means better traffic than raw link clicks.',
+    sourceUrl: 'https://www.facebook.com/business/help/417293491972212',
+    lastVerified: '2026-10-20'
   },
   {
-    id: 'ps-035', level: 'paid-social', difficulty: 3, type: 'multiple_choice', platform: 'TikTok', trick: true,
-    prompt: 'Which objective is NOT available for Spark Ads bought with the Reach & Frequency buying type?',
-    options: ['Traffic', 'Video Views', 'Conversions'],
-    correctIndex: 2,
-    explanation: 'With Reach & Frequency, Spark Ads support Reach, Traffic and Video Views. Conversions, along with objectives such as Lead generation and Sales, needs the Auction buying type.',
-    sourceUrl: 'https://ads.tiktok.com/help/article/spark-ads?lang=en',
-    lastVerified: '2026-10-13'
-  },
-  {
-    id: 'ps-036', level: 'paid-social', difficulty: 1, type: 'multiple_choice', platform: 'LinkedIn', trick: true,
-    prompt: 'What is the minimum audience size for a LinkedIn ad set?',
-    options: ['100 member accounts', '300 member accounts', '1,000 member accounts', '50,000 member accounts'],
-    correctIndex: 1,
-    explanation: 'The minimum is 300 member accounts. Location is a required targeting facet, so check that a Matched Audiences segment is comfortably above 300 before location narrows it.',
-    sourceUrl: 'https://www.linkedin.com/help/lms/answer/a424450',
-    lastVerified: '2026-10-13'
-  },
-  {
-    id: 'ps-037', level: 'paid-social', difficulty: 2, type: 'multiple_choice', platform: 'LinkedIn',
-    prompt: 'How are LinkedIn ad sets using maximum delivery bidding charged?',
+    id: 'meta-045', level: 'meta', difficulty: 3, type: 'scenario', platform: 'Meta',
+    prompt: 'A client runs three ad sets with the same objective and creative: people interested in dogs, dog toys and dog collars. What does Meta recommend?',
     options: [
-      'By impressions (CPM), with no option to set a bid or cost cap',
-      'By clicks (CPC), with a bid limit that you can adjust anytime',
-      'By key result, at the average cost cap you set for the ad set',
-      'By impressions (CPM), with an optional cost cap per key result'
+      'Combine them into one ad set with a broader audience',
+      'Keep them split to see which interest performs best',
+      'Split them further into smaller interest groups',
+      'Give each ad set its own campaign and budget'
     ],
     correctIndex: 0,
-    explanation: 'Maximum delivery bids automatically to spend your whole budget for the most key results. It charges by impressions (CPM), with no bid or cost cap setting. Want a cost target? Use cost cap. Want full control? Use manual bidding.',
-    sourceUrl: 'https://www.linkedin.com/help/lms/answer/a421112',
-    lastVerified: '2026-10-13'
+    explanation: 'Splitting one audience across similar ad sets fragments it and keeps each ad set in learning longer. Meta suggests combining them into one broader ad set, so the system can find the best opportunities.',
+    sourceUrl: 'https://www.facebook.com/business/help/2419480091640105',
+    lastVerified: '2026-10-20'
   },
   {
-    id: 'ps-038', level: 'paid-social', difficulty: 5, type: 'multiple_choice', platform: 'LinkedIn',
-    prompt: 'With LinkedIn cost cap bidding, what does the cost you set represent?',
+    id: 'meta-046', level: 'meta', difficulty: 4, type: 'multiple_choice', platform: 'Meta', trick: true,
+    prompt: 'What\'s the ad limit for a small-to-medium Page (under USD 100K spend in its highest month)?',
+    options: ['250 ads', '100 ads', '1,000 ads', '500 ads'],
+    correctIndex: 0,
+    explanation: 'Pages spending under USD 100K in their highest month can have 250 ads running or in review. Larger tiers allow 1,000, 5,000 and 20,000. The limits exist because too many ads at once hurts learning.',
+    sourceUrl: 'https://www.facebook.com/business/help/766697140509126',
+    lastVerified: '2026-10-20'
+  },
+  {
+    id: 'meta-047', level: 'meta', difficulty: 2, type: 'multiple_choice', platform: 'Meta',
+    prompt: 'Which Meta Pixel standard event does Meta give for someone signing up to an email newsletter?',
+    options: ['Complete registration', 'Add to wishlist', 'Customise product', 'Add payment info'],
+    correctIndex: 0,
+    explanation: 'Complete registration covers submitting information in exchange for a service, such as signing up for an email subscription. The others track shopping steps.',
+    sourceUrl: 'https://www.facebook.com/business/help/402791146561655',
+    lastVerified: '2026-10-20'
+  },
+  {
+    id: 'meta-048', level: 'meta', difficulty: 1, type: 'multiple_choice', platform: 'Meta',
+    prompt: 'What are Meta Pixel standard events used for?',
     options: [
-      'An average cost per key result Campaign Manager tries to stay under',
-      'A hard limit that no single key result is allowed to exceed',
-      'The fixed price you pay for every click, whatever the result',
-      'The daily spend limit, after which the ad set stops delivering'
+      'Logging conversions, optimising for them and building audiences',
+      'Setting the exact bid for each of your ads in the ad auction itself',
+      'Storing customers\' payment details securely for checkout',
+      'Measuring brand awareness through in-feed polls'
     ],
     correctIndex: 0,
-    explanation: 'The cost cap is an average target. Campaign Manager tries to stay under it by going after the lowest-cost results first, so individual results can cost more. Cost cap ad sets are charged by impressions.',
-    sourceUrl: 'https://www.linkedin.com/help/lms/answer/a421112',
-    lastVerified: '2026-10-13'
+    explanation: 'Standard events are predefined actions (like Add to cart or Purchase) that you log to record conversions, optimise delivery and build audiences.',
+    sourceUrl: 'https://www.facebook.com/business/help/402791146561655',
+    lastVerified: '2026-10-20'
   },
   {
-    id: 'ps-039', level: 'paid-social', difficulty: 5, type: 'multiple_choice', platform: 'LinkedIn', trick: true,
-    prompt: 'How many custom questions and selectable fields can a LinkedIn Lead Gen Form include?',
+    id: 'meta-049', level: 'meta', difficulty: 2, type: 'multiple_choice', platform: 'Meta',
+    prompt: 'For 9:16 ads in Stories and Reels, what does Meta advise about text and logos?',
     options: [
-      'Up to 3 custom questions and 12 fields',
-      'Up to 5 custom questions and 15 fields',
-      'Up to 3 custom questions and 7 fields',
-      'Up to 10 custom questions and 20 fields'
+      'Keep them away from the top, bottom and side edges',
+      'Place them along the bottom edge, near the CTA',
+      'Keep them within the top 20% of the frame',
+      'Cover at least half the frame so they stand out'
     ],
     correctIndex: 0,
-    explanation: 'Lead Gen Forms support up to three custom questions and 12 selectable fields, with multiple-choice or single-line text answers. Fewer fields usually means more completions, so only ask what you need.',
-    sourceUrl: 'https://www.linkedin.com/help/lms/answer/a423447',
-    lastVerified: '2026-10-13'
+    explanation: 'The Safe Zone keeps key text and logos away from the edges of 9:16 ads, where the app\'s interface can cover or crop them.',
+    sourceUrl: 'https://www.facebook.com/business/help/980593475366490',
+    lastVerified: '2026-10-20'
   },
   {
-    id: 'ps-040', level: 'paid-social', difficulty: 1, type: 'scenario', platform: 'LinkedIn',
-    prompt: 'A pharmacy client wants the LinkedIn Insight Tag on every page, including consumer pages about specific medications. What do you advise?',
+    id: 'meta-050', level: 'meta', difficulty: 3, type: 'multiple_choice', platform: 'Meta',
+    prompt: 'Can an ad set\'s performance goal differ from its campaign objective?',
     options: [
-      'Go ahead: Insight Tag data is anonymised, so any page is fine',
-      'Keep it off pages that collect or contain sensitive health data',
-      'Install it everywhere, but exclude those pages from retargeting',
-      'Install it everywhere, but turn off Website Actions on those pages'
+      'Yes, e.g. a Sales objective optimising for link clicks',
+      'No, the performance goal is fixed by the objective you choose',
+      'Yes, but just for Awareness campaigns',
+      'No, unless you use Advantage+ campaign budget'
     ],
-    correctIndex: 1,
-    explanation: 'LinkedIn\'s terms say the Insight Tag shouldn\'t be installed on pages that collect or contain sensitive data, such as consumer pages for certain medications. A generic pharmacy homepage may be fine. Leaving the tag on and excluding those pages later doesn\'t solve it.',
-    sourceUrl: 'https://www.linkedin.com/help/lms/answer/a424450',
-    lastVerified: '2026-10-13'
+    correctIndex: 0,
+    explanation: 'The performance goal is what the system bids on, and it can differ from the objective. For example, a Sales campaign can have an ad set optimising for link clicks.',
+    sourceUrl: 'https://www.facebook.com/business/help/355670007911605',
+    lastVerified: '2026-10-20'
+  },
+  {
+    id: 'meta-051', level: 'meta', difficulty: 4, type: 'multiple_choice', platform: 'Meta',
+    prompt: 'In a Meta reservation campaign, what does "target frequency" aim for?',
+    options: [
+      'An average number of times per week people see your ads',
+      'A hard maximum on how many times any one person sees your ad',
+      'The same number of impressions for every person',
+      'A fixed number of total impressions per day'
+    ],
+    correctIndex: 0,
+    explanation: 'Target frequency aims for an average weekly frequency and works best for 2–4 week campaigns. A hard maximum is the other control, the frequency cap.',
+    sourceUrl: 'https://www.facebook.com/business/help/285326585139636',
+    lastVerified: '2026-10-20'
+  },
+  {
+    id: 'meta-052', level: 'meta', difficulty: 3, type: 'multiple_choice', platform: 'Meta',
+    prompt: 'What do Meta reservation campaigns let you do?',
+    options: [
+      'Book brand campaigns in advance at a fixed CPM with frequency controls',
+      'Reserve the very top ad slot in Feed for your brand every single day',
+      'Pay per conversion instead of paying per impression',
+      'Lock in a fixed cost per click for the next 12 months'
+    ],
+    correctIndex: 0,
+    explanation: 'Reservation lets you book brand campaigns ahead of time at a fixed cost per impression (CPM), and control how often people see your ads with target frequency or a frequency cap.',
+    sourceUrl: 'https://www.facebook.com/business/help/285326585139636',
+    lastVerified: '2026-10-20'
+  },
+  {
+    id: 'meta-053', level: 'meta', difficulty: 4, type: 'multiple_choice', platform: 'Meta',
+    prompt: 'For new Sales campaigns in Ads Manager, what does Meta recommend instead of dynamic creative?',
+    options: ['The flexible ad format', 'A/B testing every creative', 'Advantage+ placements', 'Manual creative rotation'],
+    correctIndex: 0,
+    explanation: 'Since June 2024, dynamic creative may no longer be available for new Sales or App promotion ad sets. Meta recommends the flexible ad format to get a similar result.',
+    sourceUrl: 'https://www.facebook.com/business/help/2720085414702598',
+    lastVerified: '2026-10-20'
+  },
+  {
+    id: 'meta-054', level: 'meta', difficulty: 2, type: 'multiple_choice', platform: 'Meta',
+    prompt: 'What do you need before you can run ads from an Instagram account?',
+    options: [
+      'A professional (business or creator) account',
+      'A verified blue tick badge shown on your profile',
+      'At least 1,000 followers on the account',
+      'A linked WhatsApp Business account'
+    ],
+    correctIndex: 0,
+    explanation: 'To advertise on Instagram you need a professional account, either business or creator. You can then boost from the app or instagram.com, or link the account to a Facebook Page.',
+    sourceUrl: 'https://www.facebook.com/business/help/793315701035887',
+    lastVerified: '2026-10-20'
+  },
+  {
+    id: 'meta-055', level: 'meta', difficulty: 5, type: 'scenario', platform: 'Meta',
+    prompt: 'A small business boosts posts by adding funds in the Instagram iOS app. What extra cost may apply, and how do they avoid it?',
+    options: [
+      'A 30% Apple service fee; boost from instagram.com instead',
+      'A 5% Meta processing fee; pay by bank transfer instead',
+      'Double VAT; switch the account to a creator profile',
+      'A USD 100 minimum top-up; boost from a Facebook Page'
+    ],
+    correctIndex: 0,
+    explanation: 'Adding funds in the Instagram iOS app can carry an Apple service fee of 30% of the payment, which Apple keeps. Boosting from instagram.com in a browser avoids it.',
+    sourceUrl: 'https://www.facebook.com/business/help/793315701035887',
+    lastVerified: '2026-10-20'
   }
 ]);
