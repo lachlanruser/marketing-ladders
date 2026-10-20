@@ -1,6 +1,6 @@
-# Marketing Ladders
+# Climb the Funnel
 
-A Duolingo-style snakes-and-ladders game for practising marketing skills. The full brief is in `CLAUDE.md`.
+A Duolingo-style snakes-and-ladders game for practising marketing skills ("Keep your marketing skills sharp!"). It was originally built as Marketing Ladders; the v1 brief and all later decisions are in `CLAUDE.md`.
 
 ## Play
 Double-click **`index.html`**. It opens in your browser, and there's nothing to install.

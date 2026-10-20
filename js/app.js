@@ -1,26 +1,132 @@
-// Turn flow: roll -> move -> question -> feedback -> resolve (ladder / snake / stay / return).
+// Screens and game flow.
+// Home: pick a level. A run then climbs that level first and every other level shuffled after it.
+// Turn: roll -> move -> question -> feedback -> resolve (ladder / snake / stay / return).
 (function (ML) {
-  var L = ML.logic;
+  var L = ML.logic, store = ML.storage;
   function $(id) { return document.getElementById(id); }
 
   var PRAISE = ['Nice!', 'Great job!', 'Spot on!', 'You got it!', 'Correct!'];
 
-  // progress: { levelId: { completed } } (kept in memory for now; saved in slice 5)
-  var state = { levelId: null, square: 0, used: [], answered: 0, correct: 0, busy: false, progress: {} };
+  var state = {
+    run: [], runIndex: 0,          // level ids for this run, and which one we're on
+    levelId: null, square: 0,
+    asked: [],                     // question ids asked in this level this game (never repeated)
+    streak: 0,                     // current streak of correct answers (carries across a run)
+    runAnswered: 0, runCorrect: 0,
+    busy: false,                   // true while the dice/piece is animating
+    playing: false
+  };
   var turn = null; // { start, landed, question, shuffled, selected, checked, result }
 
   function level() { return ML.levels[state.levelId]; }
   function pick(list) { return list[Math.floor(Math.random() * list.length)]; }
 
+  // ---------- Home screen ----------
+  function renderHome() {
+    var data = store.load();
+    $('bestValue').textContent = data.bestStreak;
+    $('bestSub').textContent = data.bestStreak
+      ? 'correct in a row' + (data.bestStreakDate ? ' · set ' + formatDate(data.bestStreakDate) : '')
+      : 'Answer questions right in a row to set a streak';
+    $('bestNew').hidden = !data.newBest;
+    if (data.newBest) store.clearNewBest(); // celebrate once
+
+    var box = $('levelCards');
+    box.innerHTML = '';
+    ML.LEVEL_ORDER.forEach(function (id) {
+      var lv = ML.levels[id];
+      var pool = (ML.questions[id] || []).filter(function (q) { return !q.flagged; }).length;
+      var seen = Math.min(pool, (data.seen[id] || []).length);
+      var card = document.createElement('button');
+      card.type = 'button';
+      card.className = 'level-card';
+      card.style.setProperty('--theme', lv.theme);
+      card.style.setProperty('--theme-dark', lv.themeDark || lv.theme);
+      card.innerHTML =
+        '<span class="level-card-badge" aria-hidden="true"></span>' +
+        '<span class="level-card-text"><span class="level-card-name"></span><span class="level-card-sub"></span></span>' +
+        '<span class="level-card-side"></span>';
+      card.querySelector('.level-card-badge').textContent = lv.name.charAt(0);
+      card.querySelector('.level-card-name').textContent = lv.name;
+      card.querySelector('.level-card-sub').textContent = (lv.subtitle ? lv.subtitle + ' · ' : '') + 'seen ' + seen + '/' + pool;
+      var side = card.querySelector('.level-card-side');
+      side.textContent = data.completed[id] ? '✓' : '▶';
+      if (data.completed[id]) side.classList.add('done');
+      card.setAttribute('aria-label', 'Start with ' + lv.name + (data.completed[id] ? ', completed' : ''));
+      card.addEventListener('click', function () { startRun(id); });
+      box.appendChild(card);
+    });
+  }
+
+  function formatDate(iso) {
+    var p = iso.split('-');
+    var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return Number(p[2]) + ' ' + months[Number(p[1]) - 1] + ' ' + p[0];
+  }
+
+  function showScreen(name) {
+    $('home').hidden = name !== 'home';
+    $('play').hidden = name !== 'play';
+    state.playing = name === 'play';
+  }
+
+  function goHome() {
+    turn = null;
+    $('sheet').hidden = true;
+    $('complete').hidden = true;
+    $('toast').hidden = true;
+    document.documentElement.style.removeProperty('--theme');
+    document.documentElement.style.removeProperty('--theme-dark');
+    showScreen('home');
+    renderHome();
+    window.scrollTo(0, 0);
+  }
+
+  // Home button: confirm first if a run is in progress, because leaving ends it.
+  function onHome() {
+    if (state.busy) return; // wait for the piece to stop moving
+    var inProgress = state.runAnswered > 0 || state.square > 0;
+    if (!inProgress) { goHome(); return; }
+    showModal('🏠', 'Leave this run?', 'Your current streak will end. Your best streak is already saved.', [
+      { label: 'Leave', primary: true, onClick: goHome },
+      { label: 'Keep playing', onClick: function () {} }
+    ]);
+  }
+
+  // ---------- Runs ----------
+  function startRun(firstId) {
+    state.run = L.runOrder(firstId, ML.LEVEL_ORDER);
+    state.runIndex = 0;
+    state.streak = 0;
+    state.runAnswered = 0;
+    state.runCorrect = 0;
+    ML.board.render($('path'), state.run);
+    showScreen('play');
+    startLevel(state.run[0], false);
+  }
+
+  function startLevel(id, smooth) {
+    state.levelId = id;
+    state.square = 0;
+    state.asked = [];
+    state.run.forEach(function (lid, i) {
+      if (lid !== id) ML.board.setProgress(lid, i < state.runIndex ? ML.levels[lid].size : -1);
+    });
+    updateHud();
+    ML.board.placeToken(id, 0);
+    ML.board.scrollTo(id, 0, !!smooth);
+    say('Roll the dice to start ' + level().name + '!');
+    setRollEnabled(true);
+  }
+
   // ---------- HUD ----------
   function updateHud() {
     var lv = level();
-    var idx = ML.LEVEL_ORDER.indexOf(lv.id);
-    $('hudLevel').textContent = 'Level ' + (idx + 1) + ': ' + lv.name;
+    $('hudLevel').textContent = lv.name;
     document.documentElement.style.setProperty('--theme', lv.theme);
     document.documentElement.style.setProperty('--theme-dark', lv.themeDark || lv.theme);
     $('progressFill').style.width = (state.square / lv.size) * 100 + '%';
-    $('hudScore').textContent = '✔ ' + state.correct + '/' + state.answered;
+    $('hudStreak').textContent = '🔥 ' + state.streak;
     ML.board.setProgress(lv.id, state.square);
   }
 
@@ -29,21 +135,6 @@
   function setRollEnabled(on) {
     state.busy = !on;
     $('rollBtn').disabled = !on;
-  }
-
-  // ---------- Level ----------
-  function startLevel(id, smooth) {
-    state.levelId = id;
-    state.square = 0;
-    state.used = []; // fresh random draw each game: no repeats within a game
-    state.answered = 0;
-    state.correct = 0;
-    refreshLevels();
-    updateHud();
-    ML.board.placeToken(id, 0);
-    ML.board.scrollTo(id, 0, !!smooth);
-    say('Roll the dice to start ' + level().name + '!');
-    setRollEnabled(true);
   }
 
   // ---------- Movement ----------
@@ -86,6 +177,7 @@
     var value = L.rollDie();
     say('Rolling…');
     await ML.fx.rollDice(value);
+    if (!state.playing) return; // left the run mid-roll
     ML.fx.drawDie($('die'), value);
     var start = state.square;
     var landed = L.move(start, value, level().size);
@@ -97,14 +189,15 @@
   // ---------- Question ----------
   function askQuestion(start, landed) {
     var lv = level();
-    var picked = L.pickQuestion(ML.questions[lv.id] || [], state.used);
+    var picked = L.pickQuestion(ML.questions[lv.id] || [], store.seen(lv.id), Math.random, state.asked);
     if (!picked.question) { say('No questions found for this level.'); return; }
-    state.used = picked.used;
+    store.setSeen(lv.id, picked.used);
+    state.asked.push(picked.question.id);
 
     var q = picked.question;
     turn = { start: start, landed: landed, question: q, shuffled: L.shuffleOptions(q), selected: null, checked: false };
 
-    // Tags: what's at stake on this square, plus platform and difficulty.
+    // Tags: what's at stake on this square, plus platform.
     var tags = $('qTags');
     tags.innerHTML = '';
     var feature = L.featureAt(lv, landed);
@@ -141,6 +234,7 @@
     $('checkBtn').textContent = 'Check';
     $('checkBtn').disabled = true;
     $('sheet').hidden = false;
+    state.busy = false; // the question is up: Home is allowed again
     opts.firstChild.focus();
   }
 
@@ -170,8 +264,14 @@
   function check() {
     turn.checked = true;
     var correct = turn.selected === turn.shuffled.correctIndex;
-    state.answered++;
-    if (correct) state.correct++;
+    state.runAnswered++;
+    if (correct) {
+      state.runCorrect++;
+      state.streak++;
+      store.recordStreak(state.streak); // saved quietly; the best is only shown on the home screen
+    } else {
+      state.streak = 0;
+    }
 
     Array.prototype.forEach.call($('qOptions').children, function (b, j) {
       b.disabled = true;
@@ -211,13 +311,15 @@
     var landed = turn.landed;
     turn = null;
     $('sheet').hidden = true;
+    setRollEnabled(false);
 
     if (r.event === 'ladder' || r.event === 'snake') await followFeature(r.event, landed, r.final);
     else if (r.final !== landed) await hops(landed, r.final, 130); // wrong answer: hop back
+    if (!state.playing) return;
     state.square = r.final;
     updateHud();
 
-    if (r.complete) { showComplete(); return; }
+    if (r.complete) { levelComplete(); return; }
     var msgs = {
       ladder: 'Climbed to square ' + r.final + '! Roll again.',
       stay: 'Square ' + r.final + ' is yours. Roll again.',
@@ -228,7 +330,42 @@
     setRollEnabled(true);
   }
 
-  // ---------- Modal (level complete, switching levels) ----------
+  // ---------- Level and run complete ----------
+  async function levelComplete() {
+    var lv = level();
+    store.markCompleted(lv.id);
+    var nextId = state.run[state.runIndex + 1];
+    if (!nextId) { runComplete(); return; }
+
+    // Quick "Next up" moment, then climb straight into the next level.
+    say(lv.name + ' complete!');
+    var toast = $('toast');
+    toast.innerHTML = '';
+    var big = document.createElement('div');
+    big.className = 'toast-title';
+    big.textContent = lv.name + ' complete!';
+    var small = document.createElement('div');
+    small.className = 'toast-sub';
+    small.textContent = 'Next up: ' + ML.levels[nextId].name;
+    toast.appendChild(big);
+    toast.appendChild(small);
+    toast.hidden = false;
+    await ML.fx.wait(1700);
+    toast.hidden = true;
+    if (!state.playing) return;
+    state.runIndex++;
+    startLevel(nextId, true);
+  }
+
+  function runComplete() {
+    var n = state.run.length;
+    var text = 'You climbed all ' + n + ' levels and answered ' + state.runCorrect + ' of ' + state.runAnswered +
+      (state.runAnswered === 1 ? ' question' : ' questions') + ' correctly.';
+    showModal('🏆', 'Run complete!', text, [{ label: 'Back to home', primary: true, onClick: goHome }]);
+    say('Run complete!');
+  }
+
+  // ---------- Modal ----------
   // actions: [{ label, primary, onClick }]
   function showModal(icon, title, text, actions) {
     $('modalIcon').textContent = icon;
@@ -248,72 +385,19 @@
     box.firstChild.focus();
   }
 
-  function nextLevelId(id) {
-    var i = ML.LEVEL_ORDER.indexOf(id);
-    return i >= 0 && i < ML.LEVEL_ORDER.length - 1 ? ML.LEVEL_ORDER[i + 1] : null;
-  }
-
-  function showComplete() {
-    var lv = level();
-    state.progress[lv.id] = { completed: true };
-    refreshLevels();
-    var score = 'You answered ' + state.correct + ' of ' + state.answered + (state.answered === 1 ? ' question' : ' questions') + ' correctly.';
-    var next = nextLevelId(lv.id);
-    var actions = [];
-    if (next) {
-      actions.push({ label: 'Next level: ' + ML.levels[next].name, primary: true, onClick: function () { startLevel(next, true); } });
-      actions.push({ label: 'Play again', onClick: function () { startLevel(lv.id); } });
-    } else {
-      score += ' That\'s every level done!';
-      actions.push({ label: 'Play again', primary: true, onClick: function () { startLevel(lv.id); } });
-    }
-    showModal('🏆', lv.name + ' complete!', score, actions);
-    say('Level complete!');
-  }
-
-  // ---------- Level unlocking and selection ----------
-  // Each section shows whether it's locked, being played, completed or ready to play.
-  function refreshLevels() {
-    var order = ML.LEVEL_ORDER;
-    order.forEach(function (id, i) {
-      var unlocked = L.isUnlocked(id, order, state.progress);
-      var completed = !!(state.progress[id] && state.progress[id].completed);
-      var current = id === state.levelId;
-      var label;
-      if (!unlocked) label = '🔒 Finish Level ' + i + ' first';
-      else if (current) label = '▶ Playing now';
-      else if (completed) label = '✓ Completed · tap to replay';
-      else label = 'Tap to play';
-      ML.board.setStatus(id, { locked: !unlocked, completed: completed, current: current, selectable: unlocked && !current, label: label });
-      if (!current) ML.board.setProgress(id, completed ? ML.levels[id].size : -1);
-    });
-  }
-
-  // Tapping an unlocked level's banner. Confirm first if it would abandon a game in progress.
-  function selectLevel(id) {
-    if (state.busy) return;
-    var name = ML.levels[id].name;
-    var inProgress = state.square > 0 && state.square < level().size;
-    if (!inProgress) { startLevel(id, true); return; }
-    showModal('🎲', 'Switch to ' + name + '?', 'You\'ll lose your place in ' + level().name + ' and start ' + name + ' from the beginning.', [
-      { label: 'Play ' + name, primary: true, onClick: function () { startLevel(id, true); } },
-      { label: 'Keep playing ' + level().name, onClick: function () {} }
-    ]);
-  }
-
   // ---------- Boot ----------
   async function init() {
     ML.fx.drawDie($('die'), 1);
     try {
       await ML.loadLevels();
     } catch (err) {
-      say(err.message);
+      $('levelCards').textContent = err.message;
       return;
     }
-    ML.board.render($('path'), ML.LEVEL_ORDER, selectLevel);
     $('rollBtn').addEventListener('click', roll);
     $('checkBtn').addEventListener('click', onCheck);
-    startLevel(ML.LEVEL_ORDER[0]);
+    $('homeBtn').addEventListener('click', onHome);
+    goHome();
   }
 
   ML.app = { state: state };

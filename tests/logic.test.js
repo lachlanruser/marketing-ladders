@@ -135,21 +135,29 @@
     }
   });
 
-  // ---- Level unlocking ----
-  test('first level in the order is always unlocked', function () {
-    assert(L.isUnlocked('a', ['a', 'b'], {}));
+  test('when the pool resets, questions already asked this game are still avoided', function () {
+    var all = ['a', 'b', 'c', 'd'];
+    for (var i = 0; i < 30; i++) {
+      var r = L.pickQuestion(pool, all, L.seededRng(i), ['a', 'b', 'c']);
+      eq(r.question.id, 'd', 'only d has not been asked this game');
+    }
   });
 
-  test('next level locked until the previous one is completed', function () {
-    assert(!L.isUnlocked('b', ['a', 'b'], {}));
-    assert(!L.isUnlocked('b', ['a', 'b'], { a: { completed: false } }));
-    assert(L.isUnlocked('b', ['a', 'b'], { a: { completed: true } }));
+  // ---- Run order (home screen: pick a level, the rest are shuffled after it) ----
+  var ids = ['meta', 'tiktok', 'linkedin', 'search', 'bidding'];
+
+  test('run order starts with the chosen level and includes every level once', function () {
+    for (var i = 0; i < 20; i++) {
+      var order = L.runOrder('linkedin', ids, L.seededRng(i));
+      eq(order[0], 'linkedin');
+      eq(order.slice().sort(), ids.slice().sort());
+    }
   });
 
-  test('unlocking follows the current order (shuffle-ready)', function () {
-    var progress = { b: { completed: true } };
-    assert(L.isUnlocked('a', ['b', 'a'], progress), 'a follows completed b');
-    assert(!L.isUnlocked('a', ['c', 'a'], progress), 'a follows incomplete c');
+  test('run order actually shuffles the levels after the chosen one', function () {
+    var seen = {};
+    for (var i = 0; i < 50; i++) seen[L.runOrder('meta', ids, L.seededRng(i)).join(',')] = true;
+    assert(Object.keys(seen).length > 5, 'only ' + Object.keys(seen).length + ' different orders');
   });
 
   // ---- Level validation ----

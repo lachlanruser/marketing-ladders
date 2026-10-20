@@ -6,7 +6,6 @@
   var geos = {};   // levelId -> geometry from ML.path.layout
   var paths = {};  // levelId -> { ladder: {foot: [pts]}, snake: {head: [pts]} } for climb/slide animations
   var token = null;
-  var onSelect = null; // called with a level id when an unlocked level's banner is tapped
 
   function el(tag, cls, text) {
     var e = document.createElement(tag);
@@ -47,7 +46,7 @@
     return b;
   }
 
-  function buildSection(level, index) {
+  function buildSection(level, index, total) {
     var g = geo(level.id);
     var section = el('section', 'section');
     section.dataset.level = level.id;
@@ -81,18 +80,11 @@
     section.appendChild(board);
 
     // Level banner: where the path enters this level (sits just below its start circle).
-    // Tapping it plays or replays the level when it's unlocked.
     var banner = el('div', 'banner');
     var text = el('div', 'banner-text');
-    text.appendChild(el('div', 'banner-title', 'Level ' + (index + 1) + ': ' + level.name));
+    text.appendChild(el('div', 'banner-title', 'Level ' + (index + 1) + ' of ' + total + ': ' + level.name));
     if (level.subtitle) text.appendChild(el('div', 'banner-sub', level.subtitle));
     banner.appendChild(text);
-    banner.appendChild(el('div', 'banner-status'));
-    function select() { if (section.classList.contains('selectable') && onSelect) onSelect(level.id); }
-    banner.addEventListener('click', select);
-    banner.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(); }
-    });
     section.appendChild(banner);
     return section;
   }
@@ -200,26 +192,13 @@
     center: center,
     geometry: geo,
 
-    render: function (container, order, selectHandler) {
-      onSelect = selectHandler || null;
+    // Build the continuous path for a run, with levels in run order (first level at the bottom).
+    render: function (container, order) {
       container.innerHTML = '';
+      token = null;
       order.forEach(function (id, i) {
-        container.appendChild(buildSection(ML.levels[id], i));
+        container.appendChild(buildSection(ML.levels[id], i, order.length));
       });
-    },
-
-    // Show a level as locked / completed / currently playing, and whether its banner can be tapped.
-    // status: { locked, completed, current, selectable, label }
-    setStatus: function (levelId, status) {
-      var section = this.section(levelId);
-      section.classList.toggle('locked', !!status.locked);
-      section.classList.toggle('completed', !!status.completed);
-      section.classList.toggle('current', !!status.current);
-      section.classList.toggle('selectable', !!status.selectable);
-      var banner = section.querySelector('.banner');
-      banner.querySelector('.banner-status').textContent = status.label || '';
-      if (status.selectable) { banner.setAttribute('role', 'button'); banner.tabIndex = 0; }
-      else { banner.removeAttribute('role'); banner.removeAttribute('tabindex'); }
     },
 
     section: function (levelId) {

@@ -39,9 +39,10 @@
   }
 
   // Pick a random question from the whole pool (any difficulty, any square) that hasn't been
-  // used yet this game. If a game ever uses up the pool, it starts over.
-  // Returns { question, used } where used is the new list of used ids.
-  function pickQuestion(pool, usedIds, rng) {
+  // seen yet (usedIds is saved per device, so this spans games). When every question has been
+  // seen the pool starts over, still avoiding anything already asked this game (avoidIds).
+  // Returns { question, used } where used is the new list of seen ids.
+  function pickQuestion(pool, usedIds, rng, avoidIds) {
     rng = rng || Math.random;
     var playable = pool.filter(function (q) { return !q.flagged; });
     if (!playable.length) return { question: null, used: usedIds || [] };
@@ -49,7 +50,11 @@
       return playable.some(function (q) { return q.id === id; });
     });
     var available = playable.filter(function (q) { return used.indexOf(q.id) === -1; });
-    if (!available.length) { used = []; available = playable; }
+    if (!available.length) {
+      used = [];
+      var fresh = playable.filter(function (q) { return (avoidIds || []).indexOf(q.id) === -1; });
+      available = fresh.length ? fresh : playable;
+    }
 
     var question = available[Math.floor(rng() * available.length)];
     return { question: question, used: used.concat(question.id) };
@@ -70,13 +75,15 @@
     };
   }
 
-  // Unlocking uses the *current* path order, so it still works if levels are shuffled later.
-  function isUnlocked(levelId, order, progress) {
-    var i = order.indexOf(levelId);
-    if (i === -1) return false;
-    if (i === 0) return true;
-    var prev = progress && progress[order[i - 1]];
-    return !!(prev && prev.completed);
+  // Order of levels for a run: the chosen level first, then every other level shuffled.
+  function runOrder(chosenId, ids, rng) {
+    rng = rng || Math.random;
+    var rest = ids.filter(function (id) { return id !== chosenId; });
+    for (var i = rest.length - 1; i > 0; i--) {
+      var j = Math.floor(rng() * (i + 1));
+      var t = rest[i]; rest[i] = rest[j]; rest[j] = t;
+    }
+    return [chosenId].concat(rest);
   }
 
   function validateLevel(level) {
@@ -152,7 +159,7 @@
     resolveTurn: resolveTurn,
     pickQuestion: pickQuestion,
     shuffleOptions: shuffleOptions,
-    isUnlocked: isUnlocked,
+    runOrder: runOrder,
     validateLevel: validateLevel,
     validateQuestion: validateQuestion,
     simulate: simulate,

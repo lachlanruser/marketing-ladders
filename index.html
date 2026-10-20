@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Marketing Ladders</title>
+  <title>Climb the Funnel</title>
   <link rel="icon" href="data:,">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,25 +11,67 @@
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-  <header class="hud">
-    <div class="hud-level" id="hudLevel">Loading…</div>
-    <div class="progress" aria-label="Level progress">
-      <div class="progress-fill" id="progressFill"></div>
-    </div>
-    <div class="hud-score" id="hudScore" title="Correct answers / questions answered">✔ 0/0</div>
-  </header>
+  <!-- Home screen -->
+  <main class="home" id="home">
+    <div class="home-inner">
+      <svg class="logo" viewBox="0 -26 160 162" aria-hidden="true">
+        <!-- A funnel of level colours with the playing piece hopping up to the top -->
+        <g stroke-linejoin="round" stroke-width="6">
+          <path d="M10 10 H150 L138 32 H22 Z" fill="#1cb0f6" stroke="#1cb0f6"/>
+          <path d="M26 38 H134 L122 60 H38 Z" fill="#ff4b9a" stroke="#ff4b9a"/>
+          <path d="M42 66 H118 L106 88 H54 Z" fill="#9b5cf6" stroke="#9b5cf6"/>
+          <path d="M58 94 H102 L94 112 H66 Z" fill="#58cc02" stroke="#58cc02"/>
+          <path d="M70 118 H90 L86 132 H74 Z" fill="#ff9600" stroke="#ff9600"/>
+        </g>
+        <path d="M96 124 C150 108 164 40 120 2" fill="none" stroke="#c9c9c9" stroke-width="4" stroke-linecap="round" stroke-dasharray="1 9"/>
+        <circle cx="114" cy="-8" r="13" fill="#fff" stroke="#3c3c3c" stroke-width="4"/>
+        <circle cx="109" cy="-10" r="2.6" fill="#3c3c3c"/>
+        <circle cx="119" cy="-10" r="2.6" fill="#3c3c3c"/>
+      </svg>
+      <h1 class="home-title">Climb the Funnel</h1>
+      <p class="home-tagline">Keep your marketing skills sharp!</p>
 
-  <main class="scroller" id="scroller">
-    <div class="path" id="path"></div>
+      <section class="best-card" id="bestCard" aria-live="polite">
+        <div class="best-flame" aria-hidden="true">🔥</div>
+        <div class="best-text">
+          <div class="best-label">Best streak <span class="best-new" id="bestNew" hidden>New best!</span></div>
+          <div class="best-value" id="bestValue">0</div>
+          <div class="best-sub" id="bestSub">Answer questions right in a row to set a streak</div>
+        </div>
+      </section>
+
+      <h2 class="home-heading">Choose where to start</h2>
+      <p class="home-hint">The other levels are shuffled after it, so you can climb them all in one go.</p>
+      <div class="level-cards" id="levelCards"></div>
+    </div>
   </main>
 
-  <footer class="dock">
-    <div class="dock-msg" id="dockMsg">Roll the dice to start!</div>
-    <button class="btn btn-roll" id="rollBtn" type="button" aria-label="Roll the dice">
-      <span class="die" id="die" aria-hidden="true"></span>
-      <span class="btn-roll-label">Roll</span>
-    </button>
-  </footer>
+  <!-- Game screen -->
+  <div class="play" id="play" hidden>
+    <header class="hud">
+      <button class="btn-home" id="homeBtn" type="button" aria-label="Home">🏠</button>
+      <div class="hud-level" id="hudLevel">Loading…</div>
+      <div class="progress" aria-label="Level progress">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div class="hud-streak" id="hudStreak" title="Current streak of correct answers">🔥 0</div>
+    </header>
+
+    <main class="scroller" id="scroller">
+      <div class="path" id="path"></div>
+    </main>
+
+    <footer class="dock">
+      <div class="dock-msg" id="dockMsg">Roll the dice to start!</div>
+      <button class="btn btn-roll" id="rollBtn" type="button" aria-label="Roll the dice">
+        <span class="die" id="die" aria-hidden="true"></span>
+        <span class="btn-roll-label">Roll</span>
+      </button>
+    </footer>
+  </div>
+
+  <!-- "Next up" moment between levels -->
+  <div class="toast" id="toast" hidden aria-live="polite"></div>
 
   <!-- Question sheet -->
   <div class="sheet-backdrop" id="sheet" hidden>
@@ -75,12 +117,13 @@
     </div>
   </div>
 
-  <div class="confetti" id="confetti" aria-hidden="true"></div>
+
 
   <script src="js/ml.js"></script>
   <script src="data/manifest.js"></script>
   <script src="js/logic.js"></script>
   <script src="js/path.js"></script>
+  <script src="js/storage.js"></script>
   <script src="js/fx.js"></script>
   <script src="js/board.js"></script>
   <script src="js/app.js"></script>

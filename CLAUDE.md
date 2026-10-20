@@ -110,3 +110,12 @@ Content rules:
 - Unlocking and selection: a level is greyed out with a lock until the previous level is completed. Finishing a level offers "Next level" or "Play again". Tapping an unlocked level's banner plays or replays it, with a confirmation first if a game is in progress elsewhere.
 - Replay: completed sections can be replayed.
 - Runtime: zero install. Plain HTML, CSS and JS; double-click index.html to play and tests.html to run the tests.
+
+## v2 decisions: "Climb the Funnel" (these override the sections above where they differ)
+- Name: **Climb the Funnel**. Tagline: "Keep your marketing skills sharp!"
+- Home screen: title, tagline, best-streak card, and a card for each level. Tapping a level starts a run: that level first, then every other level shuffled after it on one continuous path. There's no locking; every level is open.
+- During a run: finishing a level shows a short "Next up: …" message and climbs straight into the next level. A 🏠 Home button is always visible, and it asks before leaving a run in progress.
+- High score: **longest streak** of correct answers in a row, carried across a whole run. The best streak is shown **only on the home screen** (with a one-time "New best!" badge); during play only the current streak 🔥 shows.
+- Levels: 15 stones, 2 ladders and 2 snakes, about 4–5 rolls (about 1.3 phone screens).
+- Planned levels, 40 questions each: Meta, TikTok, LinkedIn (split out of Paid social), Google Ads: Search, and Google Ads: Bidding & measurement (split out of Paid search).
+- Saving (localStorage key `climbTheFunnel.v2`): best streak and date, completed levels, and seen question ids per level. New games draw unseen questions first, so repeats are rare. There's no mid-run resume.

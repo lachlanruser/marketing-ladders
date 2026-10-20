@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Marketing Ladders tests</title>
+  <title>Climb the Funnel tests</title>
   <link rel="icon" href="data:,">
   <style>
     body { font-family: system-ui, sans-serif; margin: 24px; background: #f7f7f7; color: #222; }
@@ -18,7 +18,7 @@
   </style>
 </head>
 <body>
-  <h1>Marketing Ladders: board logic &amp; data tests</h1>
+  <h1>Climb the Funnel: board logic, saving &amp; data tests</h1>
   <div id="summary">Running…</div>
   <ul id="results"></ul>
 
@@ -26,8 +26,10 @@
   <script src="data/manifest.js"></script>
   <script src="js/logic.js"></script>
   <script src="js/path.js"></script>
+  <script src="js/storage.js"></script>
   <script src="tests/runner.js"></script>
   <script src="tests/logic.test.js"></script>
+  <script src="tests/storage.test.js"></script>
   <script>
     ML.loadLevels().then(function () {
       return ML.loadScript('tests/data.test.js');
