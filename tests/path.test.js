@@ -30,9 +30,9 @@
       for (var n = 1; n < g.points.length; n++) assert(g.points[n].y < g.points[n - 1].y, 'square ' + n + ' is not higher');
     });
 
-    test(id + ': level is 2-3 phone screens tall', function () {
+    test(id + ': level is about 1-1.6 phone screens tall (short and snappy)', function () {
       var screens = (g.height * PHONE_BOARD_PX / g.width) / PHONE_VIEW_PX;
-      assert(screens >= 2 && screens <= 3, screens.toFixed(2) + ' phone screens');
+      assert(screens >= 1 && screens <= 1.6, screens.toFixed(2) + ' phone screens');
     });
 
     test(id + ': same path every time it loads', function () {
@@ -63,10 +63,10 @@
       eq(bad, []);
     });
 
-    test(id + ': every ladder rises and every snake falls by 6-12 squares', function () {
+    test(id + ': every ladder rises and every snake falls by 4-9 squares', function () {
       features.forEach(function (f) {
         var d = Math.abs(f.to - f.from);
-        assert(d >= 6 && d <= 12, f.type + ' ' + f.from + '->' + f.to + ' moves ' + d);
+        assert(d >= 4 && d <= 9, f.type + ' ' + f.from + '->' + f.to + ' moves ' + d);
       });
     });
   });

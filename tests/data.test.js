@@ -67,12 +67,12 @@
       eq(bad, [], 'give-away wording');
     });
 
-    test(id + ': average 5-10 turns per level at 75-85% accuracy (2,000 games each)', function () {
+    test(id + ': average 3-6 rolls per level at 75-85% accuracy (2,000 games each)', function () {
       [0.75, 0.85].forEach(function (acc) {
         var rng = L.seededRng(42), total = 0, games = 2000;
         for (var g = 0; g < games; g++) total += L.simulate(level, acc, rng);
         var avg = total / games;
-        assert(avg >= 5 && avg <= 10, 'avg ' + avg.toFixed(2) + ' turns at ' + acc * 100 + '%');
+        assert(avg >= 3 && avg <= 6, 'avg ' + avg.toFixed(2) + ' turns at ' + acc * 100 + '%');
       });
     });
   });
